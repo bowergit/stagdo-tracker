@@ -797,10 +797,27 @@ function renderStatus() {
     const m   = Math.floor((s % 3600) / 60);
     const sec = s % 60;
     area.innerHTML = `
-      <div class="full-state">
-        <div class="pre-label">T-minus</div>
-        <div class="pre-time">${pad(h)}<span style="font-size:.45em;color:var(--muted)">h</span>${pad(m)}<span style="font-size:.45em;color:var(--muted)">m</span>${pad(sec)}<span style="font-size:.45em;color:var(--muted)">s</span></div>
-        <div class="pre-hint">Until pickup begins · Fri 19 Jun 06:30 BST</div>
+      <div class="status">
+        <div class="full-state" style="padding:0 0 4px">
+          <div class="pre-label">T-minus</div>
+          <div class="pre-time">${pad(h)}<span style="font-size:.45em;color:var(--muted)">h</span>${pad(m)}<span style="font-size:.45em;color:var(--muted)">m</span>${pad(sec)}<span style="font-size:.45em;color:var(--muted)">s</span></div>
+          <div class="pre-hint">Until pickup begins · Fri 19 Jun 06:30 BST</div>
+        </div>
+        <div class="cards-row" style="flex:0 0 auto">
+          ${wx ? `
+          <div class="card" style="grid-column:1/-1">
+            <div class="card-tag">🌡️ Destination · Live weather</div>
+            <div class="weather-temp">${wx.tempC}°C</div>
+            <div class="weather-desc">${wx.desc}</div>
+            <div class="weather-detail">Feels like ${wx.feelsLike}° · ${wx.humidity}% humidity</div>
+          </div>` : ''}
+          <div class="card" style="grid-column:1/-1">
+            <div class="card-tag">📸 Share your photos</div>
+            <div class="card-name" style="margin-bottom:4px">Drop your pics from the trip</div>
+            <div class="card-cryptic" style="margin-bottom:10px">Everyone can add to the shared album.</div>
+            <a class="photo-btn" href="https://www.icloud.com/sharedalbum/#B2CJ0DiRHGEgUAr" target="_blank" rel="noopener">📷 &nbsp;Open Shared Album →</a>
+          </div>
+        </div>
       </div>`;
     return;
   }
@@ -1005,37 +1022,52 @@ renderStatus();
 setInterval(renderStatus, 1000);
 
 // ━━━ FLYING PLANES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// ✈️ emoji naturally points NE (~-45° from east in screen coords)
-// So rotateDeg = 45 + flightAngle makes it point along its path.
+// ✈️ base points NE → rotateDeg = 45 + atan2(dy,dx) points it along its path.
+function randEdgePoint(edge, W, H, m) {
+  if (edge === 'L') return { x: -m,   y: (0.05 + Math.random() * 0.9) * H };
+  if (edge === 'R') return { x: W+m,  y: (0.05 + Math.random() * 0.9) * H };
+  if (edge === 'T') return { x: (0.05 + Math.random() * 0.9) * W, y: -m };
+                    return { x: (0.05 + Math.random() * 0.9) * W, y: H+m };
+}
+
 function spawnPlane() {
+  const W = window.innerWidth, H = window.innerHeight, M = 80;
+  // Weighted: L→R most common, others less so
+  const startEdges = ['L','L','L','R','R','T','B'];
+  const startEdge  = startEdges[Math.floor(Math.random() * startEdges.length)];
+  const others     = ['L','R','T','B'].filter(e => e !== startEdge);
+  const endEdge    = others[Math.floor(Math.random() * others.length)];
+
+  const s = randEdgePoint(startEdge, W, H, M);
+  const e = randEdgePoint(endEdge,   W, H, M);
+  const angleDeg  = Math.atan2(e.y - s.y, e.x - s.x) * 180 / Math.PI;
+  const rotateDeg = 45 + angleDeg;
+  const duration  = (3.2 + Math.random() * 3.5) * 1000;
+
   const plane = document.createElement('div');
   plane.textContent = '✈️';
   Object.assign(plane.style, {
     position: 'fixed', top: 0, left: 0,
-    fontSize: 'clamp(1.2rem, 4vw, 1.8rem)',
+    fontSize: `${1.1 + Math.random() * 0.7}rem`,
     pointerEvents: 'none', zIndex: '100',
   });
   document.body.appendChild(plane);
 
-  const duration = (3.8 + Math.random() * 3.5) * 1000;
-  const startY = (5 + Math.random() * 78) / 100 * window.innerHeight;
-  const endY   = startY + (Math.random() - 0.5) * window.innerHeight * 0.38;
-  const startX = -80;
-  const endX   = window.innerWidth + 80;
-  const angleDeg = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
-  const rotateDeg = 45 + angleDeg;
-
   plane.animate([
-    { transform: `translate(${startX}px,${startY}px) rotate(${rotateDeg}deg)`, opacity: 0 },
-    { transform: `translate(${startX + (endX-startX)*0.06}px,${startY + (endY-startY)*0.06}px) rotate(${rotateDeg}deg)`, opacity: 0.75, offset: 0.06 },
-    { transform: `translate(${startX + (endX-startX)*0.94}px,${startY + (endY-startY)*0.94}px) rotate(${rotateDeg}deg)`, opacity: 0.75, offset: 0.94 },
-    { transform: `translate(${endX}px,${endY}px) rotate(${rotateDeg}deg)`, opacity: 0 },
+    { transform: `translate(${s.x}px,${s.y}px) rotate(${rotateDeg}deg)`, opacity: 0 },
+    { transform: `translate(${s.x+(e.x-s.x)*.06}px,${s.y+(e.y-s.y)*.06}px) rotate(${rotateDeg}deg)`, opacity: 0.75, offset: 0.06 },
+    { transform: `translate(${s.x+(e.x-s.x)*.94}px,${s.y+(e.y-s.y)*.94}px) rotate(${rotateDeg}deg)`, opacity: 0.75, offset: 0.94 },
+    { transform: `translate(${e.x}px,${e.y}px) rotate(${rotateDeg}deg)`, opacity: 0 },
   ], { duration, fill: 'forwards', easing: 'linear' });
 
   setTimeout(() => plane.remove(), duration + 600);
-  setTimeout(spawnPlane, 3500 + Math.random() * 5500);
+  // Short interval = multiple planes in the air at once
+  setTimeout(spawnPlane, 1200 + Math.random() * 2500);
 }
-setTimeout(spawnPlane, 1500);
+// Stagger 3 initial planes so screen isn't empty at load
+setTimeout(spawnPlane, 500);
+setTimeout(spawnPlane, 1800);
+setTimeout(spawnPlane, 3200);
 </script>
 </body>
 </html>
