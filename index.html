@@ -824,6 +824,7 @@ const QUOTES = [
   { text: "Talia's mum: the real villain of this trip." },
   { text: "Solly nearly ruined the surprise a few weeks ago.", part2: "Nearly." },
   { text: "Shoutout to Solly for almost blowing the whole thing." },
+  { text: "Mendy Lent says: have a hashy in memory of the Rebbe." },
   { text: "The group chat has been muted by at least three people." },
   { text: "Someone will cry. We're not saying who." },
   { text: "Gabi's last weekend of freedom. Use it wisely." },
@@ -899,18 +900,37 @@ renderStatus();
 setInterval(renderStatus, 1000);
 
 // ━━━ FLYING PLANES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ✈️ emoji naturally points NE (~-45° from east in screen coords)
+// So rotateDeg = 45 + flightAngle makes it point along its path.
 function spawnPlane() {
   const plane = document.createElement('div');
-  plane.className = 'flying-plane';
   plane.textContent = '✈️';
-  const duration = 3.5 + Math.random() * 3;
-  plane.style.top = (6 + Math.random() * 78) + 'vh';
-  plane.style.animationDuration = duration + 's';
+  Object.assign(plane.style, {
+    position: 'fixed', top: 0, left: 0,
+    fontSize: 'clamp(1.2rem, 4vw, 1.8rem)',
+    pointerEvents: 'none', zIndex: '100',
+  });
   document.body.appendChild(plane);
-  setTimeout(() => plane.remove(), (duration + 0.5) * 1000);
-  setTimeout(spawnPlane, 4000 + Math.random() * 6000);
+
+  const duration = (3.8 + Math.random() * 3.5) * 1000;
+  const startY = (5 + Math.random() * 78) / 100 * window.innerHeight;
+  const endY   = startY + (Math.random() - 0.5) * window.innerHeight * 0.38;
+  const startX = -80;
+  const endX   = window.innerWidth + 80;
+  const angleDeg = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+  const rotateDeg = 45 + angleDeg;
+
+  plane.animate([
+    { transform: `translate(${startX}px,${startY}px) rotate(${rotateDeg}deg)`, opacity: 0 },
+    { transform: `translate(${startX + (endX-startX)*0.06}px,${startY + (endY-startY)*0.06}px) rotate(${rotateDeg}deg)`, opacity: 0.75, offset: 0.06 },
+    { transform: `translate(${startX + (endX-startX)*0.94}px,${startY + (endY-startY)*0.94}px) rotate(${rotateDeg}deg)`, opacity: 0.75, offset: 0.94 },
+    { transform: `translate(${endX}px,${endY}px) rotate(${rotateDeg}deg)`, opacity: 0 },
+  ], { duration, fill: 'forwards', easing: 'linear' });
+
+  setTimeout(() => plane.remove(), duration + 600);
+  setTimeout(spawnPlane, 3500 + Math.random() * 5500);
 }
-setTimeout(spawnPlane, 2000);
+setTimeout(spawnPlane, 1500);
 </script>
 </body>
 </html>
