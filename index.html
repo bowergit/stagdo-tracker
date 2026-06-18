@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operation ???</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0a0a0a;
+    color: #f0ead6;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 24px;
+    padding-top: 12px;
+  }
+
+  .header h1 {
+    font-size: clamp(1.6rem, 5vw, 2.4rem);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #f0ead6;
+  }
+
+  .header .subtitle {
+    color: #c9a96e;
+    font-size: 0.9rem;
+    margin-top: 4px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .card {
+    background: #141414;
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    padding: 20px;
+    width: 100%;
+    max-width: 480px;
+    margin-bottom: 16px;
+  }
+
+  .progress-section .label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #888;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .progress-bar-outer {
+    background: #222;
+    border-radius: 99px;
+    height: 18px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .progress-bar-inner {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #c9a96e, #e8c88a);
+    transition: width 1s linear;
+    position: relative;
+    min-width: 0;
+  }
+
+  .progress-bar-inner::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 20px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+    border-radius: 0 99px 99px 0;
+  }
+
+  .progress-pct {
+    text-align: center;
+    font-size: 2.6rem;
+    font-weight: 700;
+    color: #c9a96e;
+    margin-top: 12px;
+    line-height: 1;
+  }
+
+  .progress-pct span {
+    font-size: 1.1rem;
+    color: #888;
+    font-weight: 400;
+  }
+
+  .section-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #666;
+    margin-bottom: 10px;
+  }
+
+  .current-activity {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .activity-icon {
+    font-size: 2rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .activity-time {
+    font-size: 0.75rem;
+    color: #c9a96e;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .activity-name {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #f0ead6;
+  }
+
+  .activity-cryptic {
+    font-size: 0.85rem;
+    color: #999;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  .next-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .next-icon {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+
+  .next-info .next-label {
+    font-size: 0.7rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .next-info .next-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #f0ead6;
+    margin: 2px 0;
+  }
+
+  .next-info .next-time {
+    font-size: 0.8rem;
+    color: #888;
+  }
+
+  .countdown-card {
+    text-align: center;
+  }
+
+  .countdown-display {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .countdown-unit {
+    background: #1e1e1e;
+    border-radius: 10px;
+    padding: 12px 10px;
+    min-width: 64px;
+  }
+
+  .countdown-num {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #c9a96e;
+    line-height: 1;
+  }
+
+  .countdown-label {
+    font-size: 0.65rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  .done-card {
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .done-emoji {
+    font-size: 3.5rem;
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  .done-card h2 {
+    font-size: 1.5rem;
+    color: #c9a96e;
+    margin-bottom: 8px;
+  }
+
+  .done-card p {
+    color: #888;
+    font-size: 0.9rem;
+  }
+
+  .not-started-card {
+    text-align: center;
+    padding: 30px 20px;
+  }
+
+  .not-started-card .big-emoji {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  .not-started-card h2 {
+    font-size: 1.3rem;
+    color: #c9a96e;
+    margin-bottom: 8px;
+  }
+
+  .footer {
+    color: #444;
+    font-size: 0.75rem;
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  .pulse {
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  .divider {
+    height: 1px;
+    background: #2a2a2a;
+    margin: 16px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>✈️ Operation <span id="dest">???</span></h1>
+  <div class="subtitle" id="subtitle">Gabi's Stag Do · June 2026</div>
+</div>
+
+<div id="app"></div>
+
+<div class="footer" id="clock"></div>
+
+<script>
+// ─── DESTINATION REVEAL ──────────────────────────────────────────────────────
+const REVEAL_TIME = new Date('2026-06-19T07:00:00Z'); // 08:00 BST
+
+const DECOY_CITIES = [
+  'Tokyo','Reykjavik','Nairobi','Buenos Aires','Oslo','Bangkok','Lisbon',
+  'Bogotá','Helsinki','Kathmandu','Lagos','Ulaanbaatar','Havana','Tbilisi',
+  'Lima','Vilnius','Addis Ababa','Quito','Tallinn','Colombo','Bishkek',
+  'Windhoek','Yerevan','Accra','Montevideo','Phnom Penh','Tashkent','Minsk',
+  'Antananarivo','Ouagadougou','Nassau','Paramaribo','Dushanbe','Niamey',
+  'Seoul','Caracas','Vienna','Porto','Riga','Zagreb','Luanda','Dakar',
+  'Baku','Almaty','Chisinau','Nuku\'alofa','Apia','Honiara','Vientiane',
+  'Muscat','Beirut','Amman','Tunis','Libreville','Lomé','Conakry','Bamako',
+  'Copenhagen','Warsaw','Prague','Budapest','Athens','Valletta','Reykjavik',
+  'Dubrovnik','Tbilisi','Yerevan','Nur-Sultan','Ashgabat','Kabul','Dhaka',
+];
+
+let cityIndex = 0;
+let cityInterval = null;
+let revealed = false;
+
+function updateDestination() {
+  const now = new Date();
+  const destEl = document.getElementById('dest');
+  if (!destEl) return;
+
+  if (now >= REVEAL_TIME) {
+    // Lock in — dramatic reveal
+    if (!revealed) {
+      revealed = true;
+      if (cityInterval) { clearInterval(cityInterval); cityInterval = null; }
+      destEl.style.transition = 'color 0.6s ease';
+      destEl.style.color = '#c9a96e';
+      destEl.textContent = 'Marrakesh';
+      document.title = 'Operation Marrakesh 🐪';
+      const subtitle = document.getElementById('subtitle');
+      if (subtitle) subtitle.textContent = "Gabi's Stag Do · June 2026";
+    }
+  } else {
+    // Cycle cities rapidly
+    destEl.textContent = DECOY_CITIES[cityIndex % DECOY_CITIES.length];
+    destEl.style.color = '#888';
+    cityIndex++;
+    document.title = 'Operation ??? ✈️';
+    const subtitle = document.getElementById('subtitle');
+    if (subtitle) subtitle.textContent = "Gabi's Stag Do · Destination: CLASSIFIED";
+  }
+}
+
+// Start cycling fast (every 120ms)
+cityInterval = setInterval(updateDestination, 120);
+updateDestination();
+
+// ─── ITINERARY ────────────────────────────────────────────────────────────────
+// All times in LOCAL time at the activity location.
+// BST = UTC+1, Morocco = UTC+1 in summer (same as BST)
+// So we store as UTC offsets explicitly.
+
+const EVENTS = [
+  {
+    id: 'pickup_eli',
+    start: new Date('2026-06-19T05:30:00Z'), // 06:30 BST
+    end:   new Date('2026-06-19T05:35:00Z'),
+    icon: '🚗',
+    name: 'Agent Eli: Acquired',
+    cryptic: 'The first operative is extracted from the northern suburbs. The mission clock begins.',
+  },
+  {
+    id: 'pickup_richard',
+    start: new Date('2026-06-19T05:35:00Z'), // 06:35 BST
+    end:   new Date('2026-06-19T05:45:00Z'),
+    icon: '🚗',
+    name: 'Agent Richard: Acquired',
+    cryptic: 'Holly Park surrenders its finest. The convoy grows. Holly Park weeps quietly.',
+  },
+  {
+    id: 'pickup_gabi',
+    start: new Date('2026-06-19T05:45:00Z'), // 06:45 BST
+    end:   new Date('2026-06-19T07:00:00Z'),
+    icon: '🎉',
+    name: 'The Man of the Hour: Acquired',
+    cryptic: 'Willifield Way releases its greatest treasure. The stag is in the vehicle. The mission is live.',
+  },
+  {
+    id: 'stansted_drop',
+    start: new Date('2026-06-19T07:00:00Z'), // 08:00 BST
+    end:   new Date('2026-06-19T08:55:00Z'),
+    icon: '🅿️',
+    name: 'Parking: Red Zone Secured',
+    cryptic: 'The chariot is surrendered to the concrete wasteland of the Red Zone. Check-in commences. Bags are weighed with suspicious enthusiasm.',
+  },
+  {
+    id: 'flight_out',
+    start: new Date('2026-06-19T08:55:00Z'), // 09:55 BST
+    end:   new Date('2026-06-19T12:35:00Z'), // 13:35 BST
+    icon: '✈️',
+    name: 'Airborne: RK7870',
+    cryptic: 'A steel tube defies gravity at 35,000 feet. Somewhere over France, someone orders a Bloody Mary. The Atlas Mountains await.',
+  },
+  {
+    id: 'marrakesh_arrival',
+    start: new Date('2026-06-19T12:35:00Z'), // 13:35 BST / 13:35 Morocco time
+    end:   new Date('2026-06-20T06:00:00Z'),
+    icon: '🌅',
+    name: 'Marrakesh: We Have Landed',
+    cryptic: 'The souks breathe. The spice markets hum. The riad awaits. The stag has entered the medina — and the medina has no idea what\'s coming.',
+  },
+  {
+    id: 'marrakesh_day',
+    start: new Date('2026-06-20T06:00:00Z'),
+    end:   new Date('2026-06-21T17:45:00Z'), // 18:45 Morocco time = departure minus buffer
+    icon: '🏜️',
+    name: 'Full Day in Marrakesh',
+    cryptic: 'Somewhere between the hammam, the rooftop, the camel, and whatever happened at that mint tea situation — legends are being made. Classified.',
+  },
+  {
+    id: 'return_flight',
+    start: new Date('2026-06-21T17:45:00Z'), // 18:45 Morocco = 19:45? Wait, flight is 19:45 BST...
+    // Morocco is UTC+1 in summer, same as BST. So 19:45 BST = 18:45 UTC
+    // Let me recalculate: 19:45 BST = 18:45 UTC
+    end:   new Date('2026-06-21T22:20:00Z'), // 23:20 BST = 22:20 UTC
+    icon: '✈️',
+    name: 'Homeward: RK7869',
+    cryptic: 'The empire strikes back. The sky ferries its cargo north. Desert dust settles on carry-on luggage. Reality approaches at 500 knots.',
+  },
+  {
+    id: 'landing',
+    start: new Date('2026-06-21T22:20:00Z'), // 23:20 BST
+    end:   new Date('2026-06-21T23:59:00Z'),
+    icon: '🏠',
+    name: 'Back on British Soil',
+    cryptic: 'Stansted receives its prodigal sons. Cold air. Queues. The memory of warmth. The stag is safely returned — slightly sandier than when he left.',
+  },
+];
+
+const TRIP_START = EVENTS[0].start;
+const TRIP_END   = EVENTS[EVENTS.length - 1].end;
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+
+function pad(n) { return String(Math.floor(n)).padStart(2, '0'); }
+
+function formatDuration(ms) {
+  if (ms <= 0) return '00:00:00';
+  const s = Math.floor(ms / 1000);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return `${pad(h)}:${pad(m)}:${pad(sec)}`;
+}
+
+function fmtLocalTime(date) {
+  return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
+}
+
+function fmtLocalDateTime(date) {
+  return date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
+    + ' ' + fmtLocalTime(date);
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+
+function render() {
+  const now = new Date();
+  const app = document.getElementById('app');
+  const clockEl = document.getElementById('clock');
+
+  clockEl.textContent = 'Updated ' + now.toLocaleTimeString('en-GB');
+
+  // Before trip
+  if (now < TRIP_START) {
+    const ms = TRIP_START - now;
+    const totalSecs = Math.floor(ms / 1000);
+    const h = Math.floor(totalSecs / 3600);
+    const m = Math.floor((totalSecs % 3600) / 60);
+    const s = totalSecs % 60;
+
+    app.innerHTML = `
+      <div class="card not-started-card">
+        <span class="big-emoji">🐪</span>
+        <h2>Mission: Not Yet Launched</h2>
+        <p style="margin-bottom:20px;color:#888;">The stag do hasn't started yet. Hold tight.</p>
+        <div class="countdown-display">
+          <div class="countdown-unit"><div class="countdown-num">${pad(h)}</div><div class="countdown-label">Hours</div></div>
+          <div class="countdown-unit"><div class="countdown-num">${pad(m)}</div><div class="countdown-label">Mins</div></div>
+          <div class="countdown-unit"><div class="countdown-num">${pad(s)}</div><div class="countdown-label">Secs</div></div>
+        </div>
+        <p style="margin-top:16px;color:#666;font-size:0.8rem;">until pickup begins · Fri 19 Jun 06:30</p>
+      </div>
+    `;
+    return;
+  }
+
+  // After trip
+  if (now >= TRIP_END) {
+    app.innerHTML = `
+      <div class="card done-card">
+        <span class="done-emoji">🏆</span>
+        <h2>Mission Complete</h2>
+        <p>Gabi's Marrakesh stag do is officially in the history books.</p>
+        <p style="margin-top:8px;color:#c9a96e;font-style:italic;">What happens in the medina, stays in the medina.</p>
+      </div>
+    `;
+    return;
+  }
+
+  // During trip
+  const totalMs = TRIP_END - TRIP_START;
+  const elapsedMs = now - TRIP_START;
+  const pct = Math.min(100, Math.max(0, (elapsedMs / totalMs) * 100));
+
+  // Find current event
+  let currentEvent = null;
+  let nextEvent = null;
+
+  for (let i = 0; i < EVENTS.length; i++) {
+    const e = EVENTS[i];
+    if (now >= e.start && now < e.end) {
+      currentEvent = e;
+      nextEvent = EVENTS[i + 1] || null;
+      break;
+    }
+    if (now < e.start) {
+      // Between events — treat the next one as upcoming
+      nextEvent = e;
+      currentEvent = EVENTS[i - 1] || null;
+      break;
+    }
+  }
+
+  if (!currentEvent && !nextEvent) {
+    currentEvent = EVENTS[EVENTS.length - 1];
+  }
+
+  // Countdown to next event
+  let countdownHtml = '';
+  if (nextEvent) {
+    const msToNext = nextEvent.start - now;
+    const ts = Math.max(0, Math.floor(msToNext / 1000));
+    const th = Math.floor(ts / 3600);
+    const tm = Math.floor((ts % 3600) / 60);
+    const tsec = ts % 60;
+    countdownHtml = `
+      <div class="card countdown-card">
+        <div class="section-title">⏱ Countdown to Next</div>
+        <div class="countdown-display">
+          <div class="countdown-unit"><div class="countdown-num">${pad(th)}</div><div class="countdown-label">Hours</div></div>
+          <div class="countdown-unit"><div class="countdown-num">${pad(tm)}</div><div class="countdown-label">Mins</div></div>
+          <div class="countdown-unit"><div class="countdown-num">${pad(tsec)}</div><div class="countdown-label">Secs</div></div>
+        </div>
+      </div>
+    `;
+  }
+
+  const nextHtml = nextEvent ? `
+    <div class="card">
+      <div class="section-title">Coming Up</div>
+      <div class="next-card">
+        <div class="next-icon">${nextEvent.icon}</div>
+        <div class="next-info">
+          <div class="next-label">Next</div>
+          <div class="next-name">${nextEvent.name}</div>
+          <div class="next-time">${fmtLocalDateTime(nextEvent.start)}</div>
+        </div>
+      </div>
+    </div>
+  ` : '';
+
+  const currentHtml = currentEvent ? `
+    <div class="card">
+      <div class="section-title">🔴 <span class="pulse">Happening Now</span></div>
+      <div class="current-activity">
+        <div class="activity-icon">${currentEvent.icon}</div>
+        <div>
+          <div class="activity-time">${fmtLocalTime(currentEvent.start)} – ${fmtLocalTime(currentEvent.end)}</div>
+          <div class="activity-name">${currentEvent.name}</div>
+          <div class="activity-cryptic">${currentEvent.cryptic}</div>
+        </div>
+      </div>
+    </div>
+  ` : '';
+
+  app.innerHTML = `
+    <div class="card progress-section">
+      <div class="label"><span>Mission Start</span><span>Mission End</span></div>
+      <div class="progress-bar-outer">
+        <div class="progress-bar-inner" style="width:${pct.toFixed(2)}%"></div>
+      </div>
+      <div class="progress-pct">${pct.toFixed(1)}<span>%</span></div>
+    </div>
+
+    ${currentHtml}
+    ${nextHtml}
+    ${countdownHtml}
+  `;
+}
+
+render();
+setInterval(render, 1000);
+</script>
+</body>
+</html>
