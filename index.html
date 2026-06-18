@@ -118,8 +118,9 @@ body::before {
   text-transform: uppercase;
   color: var(--muted);
   font-family: 'JetBrains Mono', monospace;
-  flex-shrink: 0;
   white-space: nowrap;
+  text-align: center;
+  margin-bottom: 2px;
 }
 
 .board-tiles {
@@ -494,8 +495,8 @@ body::before {
   <div class="op-label">✈ &nbsp;Operation</div>
   <div class="big-emoji" id="emoji">🐪</div>
   <div class="board-wrap">
+    <div class="board-dest-label" id="boardSub">Destination</div>
     <div class="board-row" id="boardRow">
-      <div class="board-dest-label" id="boardSub">Destination</div>
       <div class="board-tiles" id="boardTiles"></div>
     </div>
   </div>
@@ -532,7 +533,7 @@ const CITIES = [
   'CASABLANCA','REYKJAVIK','BRUSSELS','EDINBURGH','RIGA','TALLINN',
   'VILNIUS','BUCHAREST','SOFIA','BELGRADE','ZAGREB','VALLETTA',
   'NICOSIA','TEL AVIV','CAIRO','TUNIS','ALGIERS','GENEVA','MUNICH',
-  'FRANKFURT','NOTTINGHAM',
+  'FRANKFURT','NOTTINGHAM','CHABAD',
 ];
 
 const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
