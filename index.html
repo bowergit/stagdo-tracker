@@ -88,13 +88,15 @@ body::before {
   flex-direction: column;
   align-items: center;
   gap: 6px;
+  width: fit-content;
+  max-width: 92vw;
 }
 
 .board-row {
   display: flex;
-  gap: 4px;
-  justify-content: center;
+  flex-direction: row;
   align-items: center;
+  gap: 10px;
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.07);
   border-radius: 14px;
@@ -102,11 +104,30 @@ body::before {
   box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
   transition: box-shadow 0.6s ease, border-color 0.6s ease;
   min-height: 66px;
+  width: fit-content;
 }
 
 .board-row.revealed {
   box-shadow: 0 8px 40px rgba(201,169,110,0.2), 0 0 80px rgba(201,169,110,0.08);
   border-color: rgba(201,169,110,0.25);
+}
+
+.board-dest-label {
+  font-size: 0.55rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.board-tiles {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 4px;
+  align-items: center;
 }
 
 .tile {
@@ -473,8 +494,10 @@ body::before {
   <div class="op-label">✈ &nbsp;Operation</div>
   <div class="big-emoji" id="emoji">🐪</div>
   <div class="board-wrap">
-    <div class="board-row" id="boardRow"></div>
-    <div class="board-sub" id="boardSub">Destination · Classified</div>
+    <div class="board-row" id="boardRow">
+      <div class="board-dest-label" id="boardSub">Destination</div>
+      <div class="board-tiles" id="boardTiles"></div>
+    </div>
   </div>
   <div style="font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:#444;margin-top:2px;">Gabi's Stag Do · June 2026</div>
 </div>
@@ -526,7 +549,7 @@ let scrambleStart = null;
 function rc() { return CHARS[Math.floor(Math.random() * CHARS.length)]; }
 
 function buildTiles(word) {
-  const row = document.getElementById('boardRow');
+  const row = document.getElementById('boardTiles');
   row.innerHTML = '';
   tiles = [];
   for (let i = 0; i < word.length; i++) {
@@ -610,7 +633,7 @@ function revealDestination() {
       }
       setTimeout(() => {
         document.getElementById('boardRow').classList.add('revealed');
-        document.getElementById('boardSub').textContent = 'Destination · Marrakesh, Morocco 🇲🇦';
+        document.getElementById('boardSub').textContent = 'Destination';
         document.getElementById('emoji').textContent = '🐪';
         document.title = 'Operation Marrakesh 🐪';
       }, DESTINATION.length * 110 + 250);
@@ -760,7 +783,9 @@ const QUOTES = [
   { text: "Will Big Shlong Bray make it?", part2: "...probably not." },
   { text: "Eli has been suspiciously quiet about the planning. 🤫" },
   { text: "Mimi said she's definitely not jealous. Definitely." },
-  { text: "Yoav is with us in spirit from Israel. 🇮🇱" },
+  { text: "Yoav is with us in spirit from Israel. (Israel, not Marrakesh.)" },
+  { text: "Talia's mum already told Gabi where we're going.", part2: "Cheers for that." },
+  { text: "Talia's mum: the real villain of this trip." },
   { text: "The group chat has been muted by at least three people." },
   { text: "Someone will cry. We're not saying who." },
   { text: "Gabi's last weekend of freedom. Use it wisely." },
@@ -823,7 +848,7 @@ if (new Date() >= REVEAL_TIME) {
   buildTiles(DESTINATION);
   tiles.forEach((t,i) => { if(t){t.el.className='tile locked'; t.charEl.textContent=DESTINATION[i]||' ';} });
   document.getElementById('boardRow').classList.add('revealed');
-  document.getElementById('boardSub').textContent = 'Destination · Marrakesh, Morocco 🇲🇦';
+  document.getElementById('boardSub').textContent = 'Destination';
   document.getElementById('emoji').textContent = '🐪';
   document.title = 'Operation Marrakesh 🐪';
 } else {
