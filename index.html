@@ -423,6 +423,36 @@ body::before {
   text-align: center;
 }
 
+/* ━━━━ QUOTE STRIP ━━━━ */
+.quote-strip {
+  flex: 0 0 auto;
+  padding: 10px 20px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quote-text {
+  font-size: clamp(0.78rem, 3.2vw, 0.92rem);
+  color: #888;
+  font-style: italic;
+  line-height: 1.4;
+  transition: opacity 0.5s ease;
+  max-width: 340px;
+}
+
+.quote-text.hidden { opacity: 0; }
+
+.quote-text .part2 {
+  color: var(--gold);
+  font-style: normal;
+  font-weight: 600;
+}
+
 .footer {
   position: fixed;
   bottom: 8px;
@@ -446,6 +476,14 @@ body::before {
     <div class="board-row" id="boardRow"></div>
     <div class="board-sub" id="boardSub">Destination · Classified</div>
   </div>
+  <div style="font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:#444;margin-top:2px;">Gabi's Stag Do · June 2026</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- Quote strip -->
+<div class="quote-strip">
+  <div class="quote-text" id="quoteEl"></div>
 </div>
 
 <div class="divider"></div>
@@ -710,6 +748,74 @@ function renderStatus() {
       </div>
     </div>`;
 }
+
+// ━━━ QUOTES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Each entry: { text, part2 (optional, appears after delay) }
+const QUOTES = [
+  { text: "Abi is a MILF." },
+  { text: "Neil told us there are no boundaries." },
+  { text: "Talia told us to behave.", part2: "We won't." },
+  { text: "Gabi has put too much trust in us." },
+  { text: "Hopefully this doesn't make it to the news." },
+  { text: "Will Big Shlong Bray make it?", part2: "...probably not." },
+  { text: "Eli has been suspiciously quiet about the planning. 🤫" },
+  { text: "Mimi said she's definitely not jealous. Definitely." },
+  { text: "Yoav is with us in spirit from Israel. 🇮🇱" },
+  { text: "The group chat has been muted by at least three people." },
+  { text: "Someone will cry. We're not saying who." },
+  { text: "Gabi's last weekend of freedom. Use it wisely." },
+  { text: "No boundaries. Neil's words, not ours." },
+  { text: "Eli: the mischievous one. You've been warned." },
+  { text: "What happens in Marrakesh... Gabi's mum will find out." },
+  { text: "This trip was Eli's idea. Allegedly." },
+  { text: "Yoav sends his regards and his envy. 🇮🇱" },
+  { text: "The itinerary is classified. Trust the process." },
+  { text: "Gabi thinks this is a normal weekend. Bless him." },
+];
+
+let quoteIndex = Math.floor(Math.random() * QUOTES.length);
+let quotePart2Timer = null;
+
+function showNextQuote() {
+  const el = document.getElementById('quoteEl');
+  if (!el) return;
+
+  if (quotePart2Timer) { clearTimeout(quotePart2Timer); quotePart2Timer = null; }
+
+  // Fade out
+  el.classList.add('hidden');
+
+  setTimeout(() => {
+    const q = QUOTES[quoteIndex % QUOTES.length];
+    quoteIndex++;
+    el.innerHTML = q.text;
+    el.classList.remove('hidden');
+
+    // If there's a part2, append it after a pause
+    if (q.part2) {
+      quotePart2Timer = setTimeout(() => {
+        el.classList.add('hidden');
+        setTimeout(() => {
+          el.innerHTML = q.text + ' <span class="part2">' + q.part2 + '</span>';
+          el.classList.remove('hidden');
+        }, 500);
+      }, 2200);
+    }
+  }, 500);
+}
+
+// Start quote cycle — each quote + part2 gets ~5s total, then next
+function scheduleNextQuote(q) {
+  const delay = q.part2 ? 6500 : 4500;
+  setTimeout(() => {
+    showNextQuote();
+    scheduleNextQuote(QUOTES[quoteIndex % QUOTES.length]);
+  }, delay);
+}
+
+// Kick off
+showNextQuote();
+scheduleNextQuote(QUOTES[quoteIndex % QUOTES.length]);
 
 // ━━━ INIT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 if (new Date() >= REVEAL_TIME) {
