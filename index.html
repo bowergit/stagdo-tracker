@@ -14,10 +14,10 @@
   --gold-bright: #e8c88a;
   --gold-dim: #7a5d2e;
   --bg: #080808;
-  --surface: rgba(255,255,255,0.05);
-  --border: rgba(255,255,255,0.08);
+  --surface: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.12);
   --text: #f0ead6;
-  --muted: #555;
+  --muted: #aaa;
 }
 
 html { height: 100%; }
@@ -61,11 +61,11 @@ body::before {
 }
 
 .op-label {
-  font-size: 0.6rem;
-  letter-spacing: 6px;
+  font-size: clamp(1rem, 4.5vw, 1.4rem);
+  letter-spacing: 4px;
   text-transform: uppercase;
-  color: var(--muted);
-  font-weight: 500;
+  color: var(--text);
+  font-weight: 700;
 }
 
 .big-emoji {
@@ -113,22 +113,30 @@ body::before {
 }
 
 .board-dest-label {
-  font-size: 0.55rem;
-  letter-spacing: 3px;
+  font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+  letter-spacing: 4px;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--gold);
   font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
   white-space: nowrap;
   text-align: center;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .board-tiles {
   display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
+  flex-direction: column;
   gap: 4px;
   align-items: center;
+}
+
+.board-tiles-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 3px;
+  justify-content: center;
 }
 
 .tile {
@@ -346,14 +354,31 @@ body::before {
 }
 
 .card-cryptic {
-  font-size: 0.7rem;
-  color: #666;
+  font-size: 0.75rem;
+  color: #999;
   line-height: 1.5;
   font-style: italic;
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
+}
+
+/* ━━━━ FLYING PLANES ━━━━ */
+@keyframes flyAcross {
+  0%   { transform: translateX(-80px); opacity: 0; }
+  8%   { opacity: 0.7; }
+  92%  { opacity: 0.7; }
+  100% { transform: translateX(calc(100vw + 80px)); opacity: 0; }
+}
+
+.flying-plane {
+  position: fixed;
+  font-size: clamp(1.2rem, 4vw, 1.8rem);
+  animation: flyAcross linear forwards;
+  pointer-events: none;
+  z-index: 100;
+  will-change: transform;
 }
 
 /* Countdown card spans full width */
@@ -459,8 +484,8 @@ body::before {
 }
 
 .quote-text {
-  font-size: clamp(0.78rem, 3.2vw, 0.92rem);
-  color: #888;
+  font-size: clamp(0.9rem, 3.8vw, 1.05rem);
+  color: #bbb;
   font-style: italic;
   line-height: 1.4;
   transition: opacity 0.5s ease;
@@ -492,7 +517,7 @@ body::before {
 
 <!-- Hero -->
 <div class="hero">
-  <div class="op-label">✈ &nbsp;Operation</div>
+  <div class="op-label">Operation Chaos ✈️</div>
   <div class="big-emoji" id="emoji">🐪</div>
   <div class="board-wrap">
     <div class="board-dest-label" id="boardSub">Destination</div>
@@ -533,7 +558,7 @@ const CITIES = [
   'CASABLANCA','REYKJAVIK','BRUSSELS','EDINBURGH','RIGA','TALLINN',
   'VILNIUS','BUCHAREST','SOFIA','BELGRADE','ZAGREB','VALLETTA',
   'NICOSIA','TEL AVIV','CAIRO','TUNIS','ALGIERS','GENEVA','MUNICH',
-  'FRANKFURT','NOTTINGHAM','CHABAD',
+  'FRANKFURT',['NOTTINGHAM','CHABAD'],
 ];
 
 const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -549,27 +574,37 @@ let scrambleStart = null;
 
 function rc() { return CHARS[Math.floor(Math.random() * CHARS.length)]; }
 
-function buildTiles(word) {
-  const row = document.getElementById('boardTiles');
-  row.innerHTML = '';
+function buildTiles(city) {
+  const lines = Array.isArray(city) ? city : [city];
+  const container = document.getElementById('boardTiles');
+  container.innerHTML = '';
   tiles = [];
-  for (let i = 0; i < word.length; i++) {
-    if (word[i] === ' ') {
-      const sp = document.createElement('div');
-      sp.style.width = '8px';
-      row.appendChild(sp);
-      tiles.push(null); // space marker
-      continue;
+
+  // Size tiles to fit longest line
+  const maxLen = Math.max(...lines.map(l => l.replace(/ /g, '').length));
+  const usable = Math.min(window.innerWidth - 64, 340);
+  const tileW = Math.max(20, Math.min(36, Math.floor((usable - 3 * (maxLen - 1)) / maxLen)));
+  const tileH = Math.floor(tileW * 1.55);
+  const fs = Math.max(0.85, tileW * 0.046) + 'rem';
+
+  lines.forEach(word => {
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'board-tiles-row';
+    for (let i = 0; i < word.length; i++) {
+      if (word[i] === ' ') {
+        const sp = document.createElement('div'); sp.style.width = '6px'; rowDiv.appendChild(sp);
+        tiles.push(null); continue;
+      }
+      const t = document.createElement('div');
+      t.className = 'tile';
+      t.style.width = tileW + 'px'; t.style.height = tileH + 'px';
+      const c = document.createElement('span');
+      c.className = 'tile-char'; c.style.fontSize = fs; c.textContent = word[i];
+      t.appendChild(c); rowDiv.appendChild(t);
+      tiles.push({ el: t, charEl: c });
     }
-    const t = document.createElement('div');
-    t.className = 'tile';
-    const c = document.createElement('span');
-    c.className = 'tile-char';
-    c.textContent = word[i];
-    t.appendChild(c);
-    row.appendChild(t);
-    tiles.push({ el: t, charEl: c });
-  }
+    container.appendChild(rowDiv);
+  });
 }
 
 function showCity(city) {
@@ -785,8 +820,10 @@ const QUOTES = [
   { text: "Eli has been suspiciously quiet about the planning. 🤫" },
   { text: "Mimi said she's definitely not jealous. Definitely." },
   { text: "Yoav is with us in spirit from Israel. (Israel, not Marrakesh.)" },
-  { text: "Talia's mum already told Gabi where we're going.", part2: "Cheers for that." },
+  { text: "Tanya is horrible for telling Gabi where we're going.", part2: "Absolutely horrible." },
   { text: "Talia's mum: the real villain of this trip." },
+  { text: "Solly nearly ruined the surprise a few weeks ago.", part2: "Nearly." },
+  { text: "Shoutout to Solly for almost blowing the whole thing." },
   { text: "The group chat has been muted by at least three people." },
   { text: "Someone will cry. We're not saying who." },
   { text: "Gabi's last weekend of freedom. Use it wisely." },
@@ -860,6 +897,20 @@ if (new Date() >= REVEAL_TIME) {
 
 renderStatus();
 setInterval(renderStatus, 1000);
+
+// ━━━ FLYING PLANES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function spawnPlane() {
+  const plane = document.createElement('div');
+  plane.className = 'flying-plane';
+  plane.textContent = '✈️';
+  const duration = 3.5 + Math.random() * 3;
+  plane.style.top = (6 + Math.random() * 78) + 'vh';
+  plane.style.animationDuration = duration + 's';
+  document.body.appendChild(plane);
+  setTimeout(() => plane.remove(), (duration + 0.5) * 1000);
+  setTimeout(spawnPlane, 4000 + Math.random() * 6000);
+}
+setTimeout(spawnPlane, 2000);
 </script>
 </body>
 </html>
