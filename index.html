@@ -12,101 +12,116 @@
 :root {
   --gold: #c9a96e;
   --gold-bright: #e8c88a;
-  --gold-dim: #8a6d3b;
+  --gold-dim: #7a5d2e;
   --bg: #080808;
-  --surface: rgba(255,255,255,0.04);
-  --border: rgba(255,255,255,0.07);
+  --surface: rgba(255,255,255,0.05);
+  --border: rgba(255,255,255,0.08);
   --text: #f0ead6;
-  --muted: #666;
-  --tile-bg: #111;
-  --tile-border: #1c1c1c;
+  --muted: #555;
 }
 
-html, body {
+html { height: 100%; }
+
+body {
   background: var(--bg);
   color: var(--text);
   font-family: 'Inter', system-ui, sans-serif;
-  min-height: 100dvh;
-  overscroll-behavior: none;
-}
-
-body {
+  height: 100dvh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 16px 16px 32px;
+  overflow: hidden;
+  position: relative;
 }
 
-/* ── Background glow ── */
+/* ambient glow */
 body::before {
   content: '';
   position: fixed;
-  top: -120px;
+  top: -20%;
   left: 50%;
   transform: translateX(-50%);
-  width: 600px;
-  height: 400px;
-  background: radial-gradient(ellipse, rgba(201,169,110,0.07) 0%, transparent 70%);
+  width: 100vw;
+  height: 60vh;
+  background: radial-gradient(ellipse at center top, rgba(201,169,110,0.08) 0%, transparent 65%);
   pointer-events: none;
   z-index: 0;
 }
 
-/* ── Header ── */
-.header {
-  text-align: center;
-  padding-top: 8px;
-  margin-bottom: 20px;
+/* ━━━━ HERO (top ~50%) ━━━━ */
+.hero {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px 16px;
   position: relative;
   z-index: 1;
+  gap: 6px;
 }
 
 .op-label {
-  font-size: 0.65rem;
-  letter-spacing: 5px;
+  font-size: 0.6rem;
+  letter-spacing: 6px;
   text-transform: uppercase;
   color: var(--muted);
   font-weight: 500;
-  margin-bottom: 8px;
 }
 
-.emoji-strip {
-  font-size: 1.1rem;
-  margin-bottom: 10px;
-  letter-spacing: 4px;
-  opacity: 0.9;
-  transition: opacity 0.4s;
+.big-emoji {
+  font-size: clamp(4rem, 18vw, 6rem);
+  line-height: 1;
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  display: block;
+  text-align: center;
+  margin: 4px 0 2px;
+  filter: drop-shadow(0 4px 16px rgba(201,169,110,0.2));
 }
 
-/* ── Departures board ── */
+.big-emoji.pop {
+  transform: scale(1.25) rotate(-8deg);
+}
+
+/* ── Board ── */
 .board-wrap {
-  margin: 0 auto 8px;
-  display: inline-block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
 }
 
 .board-row {
   display: flex;
-  gap: 3px;
+  gap: 4px;
   justify-content: center;
   align-items: center;
-  background: #0c0c0c;
-  border: 1px solid var(--tile-border);
-  border-radius: 12px;
-  padding: 10px 12px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 10px 14px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
+  transition: box-shadow 0.6s ease, border-color 0.6s ease;
+  min-height: 66px;
+}
+
+.board-row.revealed {
+  box-shadow: 0 8px 40px rgba(201,169,110,0.2), 0 0 80px rgba(201,169,110,0.08);
+  border-color: rgba(201,169,110,0.25);
 }
 
 .tile {
-  width: 30px;
-  height: 44px;
-  background: var(--tile-bg);
-  border-radius: 6px;
-  border: 1px solid var(--tile-border);
+  width: clamp(28px, 7.5vw, 38px);
+  height: clamp(44px, 11vw, 56px);
+  background: #101010;
+  border-radius: 7px;
+  border: 1px solid #1c1c1c;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   overflow: hidden;
-  box-shadow: inset 0 -2px 4px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.6);
+  box-shadow: inset 0 -2px 5px rgba(0,0,0,0.5);
+  transition: border-color 0.4s, box-shadow 0.4s;
 }
 
 .tile::after {
@@ -114,34 +129,29 @@ body::before {
   position: absolute;
   left: 0; right: 0; top: 50%;
   height: 1px;
-  background: rgba(0,0,0,0.6);
-  z-index: 2;
+  background: rgba(0,0,0,0.55);
   pointer-events: none;
 }
 
 .tile-char {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 1.35rem;
+  font-size: clamp(1.2rem, 4.5vw, 1.6rem);
   font-weight: 700;
-  color: var(--text);
+  color: #e0d8c8;
   line-height: 1;
-  position: relative;
-  z-index: 1;
-  transition: color 0.5s ease;
+  transition: color 0.4s ease;
+}
+
+.tile.scrambling .tile-char { color: #2a2a2a; }
+
+.tile.locked {
+  border-color: rgba(201,169,110,0.25);
+  box-shadow: inset 0 -2px 5px rgba(0,0,0,0.5), 0 0 12px rgba(201,169,110,0.15);
 }
 
 .tile.locked .tile-char {
   color: var(--gold);
-  text-shadow: 0 0 16px rgba(201,169,110,0.6), 0 0 40px rgba(201,169,110,0.2);
-}
-
-.tile.scrambling .tile-char {
-  color: #444;
-}
-
-.tile-space {
-  width: 8px;
-  flex-shrink: 0;
+  text-shadow: 0 0 20px rgba(201,169,110,0.6);
 }
 
 .board-sub {
@@ -150,386 +160,385 @@ body::before {
   text-transform: uppercase;
   color: var(--muted);
   text-align: center;
-  margin-top: 7px;
 }
 
-/* ── Cards ── */
-.cards {
-  width: 100%;
-  max-width: 440px;
+/* ━━━━ DIVIDER ━━━━ */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  flex-shrink: 0;
+  margin: 0 16px;
+}
+
+/* ━━━━ STATUS (bottom ~50%) ━━━━ */
+.status {
+  flex: 1;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  padding: 12px 14px 16px;
+  gap: 10px;
   position: relative;
   z-index: 1;
+}
+
+/* Progress row */
+.prog-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.prog-pct {
+  font-size: clamp(2.4rem, 11vw, 3.6rem);
+  font-weight: 900;
+  letter-spacing: -3px;
+  color: var(--text);
+  line-height: 1;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.prog-pct sup {
+  font-size: 0.4em;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0;
+  vertical-align: super;
+}
+
+.prog-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.prog-track {
+  height: 8px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 99px;
+  position: relative;
+  overflow: visible;
+}
+
+.prog-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-bright));
+  position: relative;
+  transition: width 2s cubic-bezier(0.4,0,0.2,1);
+  min-width: 8px;
+}
+
+.prog-fill::after {
+  content: '';
+  position: absolute;
+  right: -1px; top: 50%;
+  transform: translateY(-50%);
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--gold-bright);
+  box-shadow: 0 0 12px rgba(201,169,110,0.9), 0 0 28px rgba(201,169,110,0.4);
+}
+
+.prog-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+}
+
+/* Current + next cards */
+.cards-row {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  min-height: 0;
 }
 
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 18px 20px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  position: relative;
+  border-radius: 18px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  position: relative;
 }
 
 .card::before {
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: 20px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 60%);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, transparent 60%);
   pointer-events: none;
 }
 
-.tag {
-  font-size: 0.6rem;
-  letter-spacing: 3px;
+.card-tag {
+  font-size: 0.55rem;
+  letter-spacing: 2.5px;
   text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
-.tag-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
+.live-dot {
+  width: 5px; height: 5px;
   background: var(--gold);
-  animation: blink 1.8s ease-in-out infinite;
-  flex-shrink: 0;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.2; }
-}
-
-/* ── Progress ── */
-.progress-pct {
-  font-size: 3.2rem;
-  font-weight: 900;
-  color: var(--text);
-  line-height: 1;
-  letter-spacing: -2px;
-  margin-bottom: 14px;
-}
-
-.progress-pct sup {
-  font-size: 1.2rem;
-  font-weight: 500;
-  color: var(--muted);
-  letter-spacing: 0;
-}
-
-.progress-track {
-  height: 6px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 99px;
-  overflow: visible;
-  position: relative;
-}
-
-.progress-fill {
-  height: 100%;
-  border-radius: 99px;
-  background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-bright));
-  position: relative;
-  transition: width 2s cubic-bezier(0.4, 0, 0.2, 1);
-  min-width: 6px;
-}
-
-.progress-fill::after {
-  content: '';
-  position: absolute;
-  right: -1px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 12px;
-  height: 12px;
   border-radius: 50%;
-  background: var(--gold-bright);
-  box-shadow: 0 0 10px rgba(201,169,110,0.8), 0 0 20px rgba(201,169,110,0.4);
-}
-
-.progress-labels {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-  font-size: 0.65rem;
-  color: var(--muted);
-  letter-spacing: 1px;
-}
-
-/* ── Current activity ── */
-.act-icon {
-  font-size: 2.2rem;
-  margin-bottom: 8px;
-  display: block;
-  line-height: 1;
-}
-
-.act-name {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-bottom: 6px;
-  color: var(--text);
-}
-
-.act-time {
-  font-size: 0.72rem;
-  color: var(--gold);
-  letter-spacing: 1px;
-  margin-bottom: 8px;
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.act-cryptic {
-  font-size: 0.85rem;
-  color: #777;
-  line-height: 1.6;
-  font-style: italic;
-}
-
-/* ── Next up ── */
-.next-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.next-icon {
-  font-size: 1.6rem;
   flex-shrink: 0;
-  line-height: 1;
+  animation: blink 1.8s ease-in-out infinite;
 }
 
-.next-name {
-  font-size: 0.95rem;
-  font-weight: 600;
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.15} }
+
+.card-icon { font-size: 1.6rem; line-height: 1; margin-bottom: 6px; flex-shrink: 0; }
+
+.card-name {
+  font-size: clamp(0.75rem, 2.8vw, 0.9rem);
+  font-weight: 700;
   color: var(--text);
-  margin-bottom: 3px;
+  line-height: 1.25;
+  margin-bottom: 4px;
+  flex-shrink: 0;
 }
 
-.next-time {
-  font-size: 0.72rem;
-  color: var(--muted);
+.card-time {
+  font-size: 0.62rem;
+  color: var(--gold);
   font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 6px;
+  flex-shrink: 0;
 }
 
-/* ── Countdown ── */
-.countdown-row {
+.card-cryptic {
+  font-size: 0.7rem;
+  color: #666;
+  line-height: 1.5;
+  font-style: italic;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
+
+/* Countdown card spans full width */
+.countdown-card {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.cd-label {
+  font-size: 0.58rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  flex-shrink: 0;
+  writing-mode: initial;
+}
+
+.cd-nums {
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  flex: 1;
   justify-content: center;
 }
 
-.cdown-unit {
+.cd-unit {
   flex: 1;
   background: rgba(0,0,0,0.3);
-  border-radius: 12px;
-  padding: 14px 8px 10px;
-  text-align: center;
+  border-radius: 10px;
   border: 1px solid rgba(255,255,255,0.05);
+  padding: 8px 4px 6px;
+  text-align: center;
 }
 
-.cdown-num {
+.cd-num {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 1.7rem;
+  font-size: clamp(1.4rem, 6vw, 2rem);
   font-weight: 700;
   color: var(--gold);
   line-height: 1;
   letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
 }
 
-.cdown-label {
-  font-size: 0.55rem;
+.cd-lbl {
+  font-size: 0.5rem;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 2px;
-  margin-top: 5px;
+  letter-spacing: 1.5px;
+  margin-top: 3px;
 }
 
-/* ── Pre-trip countdown ── */
-.hero-countdown {
-  text-align: center;
-  padding: 8px 0;
-}
-
-.hero-countdown .big-num {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: clamp(3rem, 12vw, 5rem);
-  font-weight: 700;
-  color: var(--gold);
-  line-height: 1;
-  letter-spacing: -3px;
-}
-
-.hero-countdown .hint {
-  font-size: 0.75rem;
-  color: var(--muted);
-  margin-top: 10px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
-
-/* ── Done ── */
-.done-wrap {
-  text-align: center;
-  padding: 32px 20px;
-}
-
-.done-wrap h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--gold);
-  margin-bottom: 8px;
-}
-
-.done-wrap p {
-  font-size: 0.9rem;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-/* ── Footer ── */
-.footer {
-  color: #2a2a2a;
-  font-size: 0.65rem;
-  text-align: center;
-  margin-top: 16px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+/* Pre-trip / post-trip fullscreen */
+.full-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  gap: 20px;
   position: relative;
   z-index: 1;
 }
 
-/* ── Glow reveal animation ── */
-@keyframes glowReveal {
-  0%   { text-shadow: none; color: var(--text); }
-  50%  { text-shadow: 0 0 30px rgba(201,169,110,1), 0 0 60px rgba(201,169,110,0.5); color: var(--gold-bright); }
-  100% { text-shadow: 0 0 16px rgba(201,169,110,0.5), 0 0 40px rgba(201,169,110,0.2); color: var(--gold); }
+.pre-label {
+  font-size: 0.65rem;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
-@keyframes boardReveal {
-  0%   { box-shadow: 0 4px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04); border-color: var(--tile-border); }
-  50%  { box-shadow: 0 4px 40px rgba(201,169,110,0.3), 0 0 80px rgba(201,169,110,0.15), inset 0 1px 0 rgba(255,255,255,0.04); border-color: rgba(201,169,110,0.3); }
-  100% { box-shadow: 0 4px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04); border-color: var(--tile-border); }
+.pre-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(3rem, 16vw, 5rem);
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: -4px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.pre-hint {
+  font-size: 0.75rem;
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+.footer {
+  position: fixed;
+  bottom: 8px;
+  left: 0; right: 0;
+  text-align: center;
+  font-size: 0.55rem;
+  color: #222;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  z-index: 0;
 }
 </style>
 </head>
 <body>
 
-<div class="header">
+<!-- Hero -->
+<div class="hero">
   <div class="op-label">✈ &nbsp;Operation</div>
-  <div class="emoji-strip" id="emojiStrip">🐪</div>
+  <div class="big-emoji" id="emoji">🐪</div>
   <div class="board-wrap">
     <div class="board-row" id="boardRow"></div>
     <div class="board-sub" id="boardSub">Destination · Classified</div>
   </div>
 </div>
 
-<div class="cards" id="cards"></div>
+<div class="divider"></div>
+
+<!-- Status (injected) -->
+<div id="statusArea"></div>
 
 <div class="footer" id="footer"></div>
 
 <script>
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// CONFIG
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━ CONFIG ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const REVEAL_TIME = new Date('2026-06-19T07:00:00Z'); // 08:00 BST
 const DESTINATION = 'MARRAKESH';
-const HOLD_MS     = 3200;  // how long each city is shown
-const SCRAMBLE_MS = 700;   // scramble duration between cities
+const HOLD_MS     = 3400;
+const SCRAMBLE_MS = 650;
 
-const EMOJIS = ['🐪','🍆','🍺','🍹','🌴','☀️','🕺','🎉','🥂','🔥','🌶️','🎊','🏖️','💃','🏜️','🍸','👙','🎶'];
+const EMOJIS = ['🐪','🍆','🍺','🍹','🌴','☀️','🕺','🎉','🥂','🔥','🌶️','💃','🏖️','🍸','🎊','👙','🎶','🏜️'];
 
 const CITIES = [
-  'TOKYO','REYKJAVIK','NAIROBI','OSLO','BANGKOK','LISBON',
-  'HELSINKI','KATHMANDU','HAVANA','LIMA','TALLINN','COLOMBO',
-  'WINDHOEK','YEREVAN','ACCRA','MONTEVIDEO','TASHKENT',
-  'NASSAU','DUSHANBE','SEOUL','CARACAS','VIENNA','PORTO',
-  'RIGA','ZAGREB','LUANDA','DAKAR','BAKU','ALMATY',
-  'MUSCAT','BEIRUT','AMMAN','TUNIS','BAMAKO','NIAMEY',
-  'WARSAW','PRAGUE','BUDAPEST','ATHENS','VALLETTA',
-  'ISTANBUL','CASABLANCA','CAIRO','SINGAPORE','DUBAI',
-  'BOGOTA','QUITO','VILNIUS','MINSK','CHISINAU','DHAKA',
-  'BRUSSELS','STOCKHOLM','AMSTERDAM','COPENHAGEN','KYOTO',
+  'PARIS','MADRID','ROME','BERLIN','AMSTERDAM','LISBON','VIENNA',
+  'PRAGUE','WARSAW','BUDAPEST','ATHENS','STOCKHOLM','COPENHAGEN',
+  'OSLO','HELSINKI','DUBLIN','ZURICH','BARCELONA','MILAN','ISTANBUL',
+  'CASABLANCA','REYKJAVIK','BRUSSELS','EDINBURGH','RIGA','TALLINN',
+  'VILNIUS','BUCHAREST','SOFIA','BELGRADE','ZAGREB','VALLETTA',
+  'NICOSIA','TEL AVIV','CAIRO','TUNIS','ALGIERS','GENEVA','MUNICH',
+  'FRANKFURT','NOTTINGHAM',
 ];
 
-const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// BOARD
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const MAX_TILES = 9; // length of MARRAKESH
+// ━━━ BOARD ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 let tiles = [];
-let emojiIndex = 0;
 let cityIndex = Math.floor(Math.random() * CITIES.length);
+let emojiIndex = 0;
 let revealed = false;
-let boardPhase = 'holding'; // 'holding' | 'scrambling'
 let phaseTimer = null;
 let scrambleRAF = null;
 let scrambleStart = null;
 
-function buildBoard() {
+function rc() { return CHARS[Math.floor(Math.random() * CHARS.length)]; }
+
+function buildTiles(word) {
   const row = document.getElementById('boardRow');
   row.innerHTML = '';
   tiles = [];
-  for (let i = 0; i < MAX_TILES; i++) {
+  for (let i = 0; i < word.length; i++) {
+    if (word[i] === ' ') {
+      const sp = document.createElement('div');
+      sp.style.width = '8px';
+      row.appendChild(sp);
+      tiles.push(null); // space marker
+      continue;
+    }
     const t = document.createElement('div');
-    t.className = 'tile scrambling';
+    t.className = 'tile';
     const c = document.createElement('span');
     c.className = 'tile-char';
-    c.textContent = randomChar();
+    c.textContent = word[i];
     t.appendChild(c);
     row.appendChild(t);
     tiles.push({ el: t, charEl: c });
   }
 }
 
-function randomChar() {
-  return CHARS[Math.floor(Math.random() * CHARS.length)];
-}
-
 function showCity(city) {
-  const padded = city.padEnd(MAX_TILES, ' ').slice(0, MAX_TILES);
-  tiles.forEach((t, i) => {
-    t.el.className = 'tile';
-    t.charEl.textContent = padded[i] === ' ' ? ' ' : padded[i];
-  });
-  document.getElementById('emojiStrip').textContent = EMOJIS[emojiIndex % EMOJIS.length];
+  buildTiles(city);
+  // Emoji pop animation
+  const e = document.getElementById('emoji');
+  const newEmoji = EMOJIS[emojiIndex % EMOJIS.length];
+  e.textContent = newEmoji;
+  e.classList.remove('pop');
+  requestAnimationFrame(() => requestAnimationFrame(() => e.classList.add('pop')));
+  setTimeout(() => e.classList.remove('pop'), 400);
   emojiIndex++;
 }
 
-function scrambleTiles(progress) {
-  // progress 0→1: at start all random, at end stabilising
+function scrambleTick(progress) {
   tiles.forEach(t => {
-    if (Math.random() > progress * 0.6) {
+    if (!t) return;
+    if (Math.random() > progress * 0.5) {
       t.el.className = 'tile scrambling';
-      t.charEl.textContent = randomChar();
+      t.charEl.textContent = rc();
     }
   });
 }
 
-function startScramble(callback) {
-  boardPhase = 'scrambling';
+function startScramble(cb) {
   scrambleStart = performance.now();
-
   function frame(now) {
-    const elapsed = now - scrambleStart;
-    const progress = Math.min(1, elapsed / SCRAMBLE_MS);
-    scrambleTiles(progress);
-    if (progress < 1) {
-      scrambleRAF = requestAnimationFrame(frame);
-    } else {
-      scrambleRAF = null;
-      callback();
-    }
+    const p = Math.min(1, (now - scrambleStart) / SCRAMBLE_MS);
+    scrambleTick(p);
+    if (p < 1) { scrambleRAF = requestAnimationFrame(frame); }
+    else { scrambleRAF = null; cb(); }
   }
   scrambleRAF = requestAnimationFrame(frame);
 }
@@ -537,7 +546,6 @@ function startScramble(callback) {
 function nextCity() {
   cityIndex = (cityIndex + 1) % CITIES.length;
   showCity(CITIES[cityIndex]);
-  boardPhase = 'holding';
   phaseTimer = setTimeout(() => startScramble(nextCity), HOLD_MS);
 }
 
@@ -547,256 +555,179 @@ function revealDestination() {
   clearTimeout(phaseTimer);
   if (scrambleRAF) cancelAnimationFrame(scrambleRAF);
 
-  // Speed scramble then reveal letter by letter
-  let rushCount = 0;
-  const rushInterval = setInterval(() => {
-    tiles.forEach(t => {
-      t.el.className = 'tile scrambling';
-      t.charEl.textContent = randomChar();
-    });
-    rushCount++;
-    if (rushCount >= 16) {
-      clearInterval(rushInterval);
-      // Settle each letter with stagger
+  // Rush scramble then settle letter by letter
+  let n = 0;
+  const rush = setInterval(() => {
+    buildTiles(DESTINATION); // rebuild to exact length
+    tiles.forEach(t => { if (t) { t.el.className='tile scrambling'; t.charEl.textContent=rc(); }});
+    if (++n >= 14) {
+      clearInterval(rush);
       for (let i = 0; i < DESTINATION.length; i++) {
         setTimeout(() => {
-          const t = tiles[i];
-          t.charEl.textContent = DESTINATION[i];
-          t.el.className = 'tile';
-          setTimeout(() => {
-            t.el.className = 'tile locked';
-          }, 80);
-        }, i * 100);
+          if (!tiles[i]) return;
+          tiles[i].charEl.textContent = DESTINATION[i];
+          tiles[i].el.className = 'tile';
+          setTimeout(() => { tiles[i].el.className = 'tile locked'; }, 80);
+        }, i * 110);
       }
-      // After all settle
       setTimeout(() => {
-        document.getElementById('boardRow').style.animation = 'boardReveal 2s ease forwards';
+        document.getElementById('boardRow').classList.add('revealed');
         document.getElementById('boardSub').textContent = 'Destination · Marrakesh, Morocco 🇲🇦';
-        document.getElementById('emojiStrip').textContent = '🐪';
+        document.getElementById('emoji').textContent = '🐪';
         document.title = 'Operation Marrakesh 🐪';
-      }, DESTINATION.length * 100 + 200);
+      }, DESTINATION.length * 110 + 250);
     }
-  }, 60);
+  }, 55);
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// ITINERARY
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━ ITINERARY ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const EVENTS = [
-  {
-    start: new Date('2026-06-19T05:30:00Z'),
-    end:   new Date('2026-06-19T05:35:00Z'),
-    icon: '🚗', name: 'Agent Eli: Acquired',
-    cryptic: 'The first operative is extracted from the northern suburbs. The mission clock begins.',
-  },
-  {
-    start: new Date('2026-06-19T05:35:00Z'),
-    end:   new Date('2026-06-19T05:45:00Z'),
-    icon: '🚗', name: 'Agent Richard: Acquired',
-    cryptic: 'Holly Park surrenders its finest. The convoy grows in size and in ambition.',
-  },
-  {
-    start: new Date('2026-06-19T05:45:00Z'),
-    end:   new Date('2026-06-19T07:00:00Z'),
-    icon: '🎉', name: 'The Man of the Hour: Acquired',
-    cryptic: 'Willifield Way releases its greatest treasure. The stag is in the vehicle. The mission is live.',
-  },
-  {
-    start: new Date('2026-06-19T07:00:00Z'),
-    end:   new Date('2026-06-19T08:55:00Z'),
-    icon: '🅿️', name: 'Stansted: Red Zone Secured',
-    cryptic: 'The chariot is surrendered to the concrete wasteland. Check-in begins. Bags weighed with suspicious enthusiasm.',
-  },
-  {
-    start: new Date('2026-06-19T08:55:00Z'),
-    end:   new Date('2026-06-19T12:35:00Z'),
-    icon: '✈️', name: 'Airborne: RK7870',
-    cryptic: 'A steel tube defies gravity at 35,000 feet. Somewhere over France, someone orders a Bloody Mary. The Atlas Mountains await.',
-  },
-  {
-    start: new Date('2026-06-19T12:35:00Z'),
-    end:   new Date('2026-06-20T06:00:00Z'),
-    icon: '🌅', name: 'Marrakesh: We Have Landed',
-    cryptic: 'The souks breathe. The spice markets hum. The riad awaits. The stag has entered the medina — and the medina has no idea what\'s coming.',
-  },
-  {
-    start: new Date('2026-06-20T06:00:00Z'),
-    end:   new Date('2026-06-21T17:45:00Z'),
-    icon: '🏜️', name: 'Full Day: Marrakesh',
-    cryptic: 'Somewhere between the hammam, the rooftop, the camel, and whatever happened at that mint tea situation — legends are being made. Classified.',
-  },
-  {
-    start: new Date('2026-06-21T17:45:00Z'),
-    end:   new Date('2026-06-21T22:20:00Z'),
-    icon: '✈️', name: 'Homeward: RK7869',
-    cryptic: 'The empire strikes back. The sky ferries its cargo north. Desert dust settles on carry-on luggage. Reality approaches at 500 knots.',
-  },
-  {
-    start: new Date('2026-06-21T22:20:00Z'),
-    end:   new Date('2026-06-21T23:59:00Z'),
-    icon: '🏠', name: 'Back on British Soil',
-    cryptic: 'Stansted receives its prodigal sons. Cold air. Queues. The memory of warmth. The stag is safely returned — slightly sandier than when he left.',
-  },
+  { start: new Date('2026-06-19T05:30:00Z'), end: new Date('2026-06-19T05:35:00Z'),
+    icon:'🚗', name:'Agent Eli: Acquired',
+    cryptic:'The first operative extracted from the northern suburbs. The mission clock begins.' },
+  { start: new Date('2026-06-19T05:35:00Z'), end: new Date('2026-06-19T05:45:00Z'),
+    icon:'🚗', name:'Agent Richard: Acquired',
+    cryptic:'Holly Park surrenders its finest. The convoy grows in size and ambition.' },
+  { start: new Date('2026-06-19T05:45:00Z'), end: new Date('2026-06-19T07:00:00Z'),
+    icon:'🎉', name:'The Man of the Hour',
+    cryptic:'Willifield Way releases its greatest treasure. The stag is in the vehicle. Mission live.' },
+  { start: new Date('2026-06-19T07:00:00Z'), end: new Date('2026-06-19T08:55:00Z'),
+    icon:'🅿️', name:'Red Zone: Secured',
+    cryptic:'The chariot surrendered to the concrete wasteland. Check-in begins. Bags weighed with suspicious enthusiasm.' },
+  { start: new Date('2026-06-19T08:55:00Z'), end: new Date('2026-06-19T12:35:00Z'),
+    icon:'✈️', name:'Airborne: RK7870',
+    cryptic:'35,000 feet. Somewhere over France someone orders a Bloody Mary. The Atlas Mountains await.' },
+  { start: new Date('2026-06-19T12:35:00Z'), end: new Date('2026-06-20T06:00:00Z'),
+    icon:'🌅', name:'Marrakesh: Landed',
+    cryptic:'The souks breathe. The spice markets hum. The riad awaits. The medina has no idea what\'s coming.' },
+  { start: new Date('2026-06-20T06:00:00Z'), end: new Date('2026-06-21T17:45:00Z'),
+    icon:'🏜️', name:'Full Day: Marrakesh',
+    cryptic:'Between the hammam, the rooftop, and whatever happened at that mint tea situation — legends are being made.' },
+  { start: new Date('2026-06-21T17:45:00Z'), end: new Date('2026-06-21T22:20:00Z'),
+    icon:'✈️', name:'Homeward: RK7869',
+    cryptic:'The sky ferries its cargo north. Desert dust on carry-on luggage. Reality at 500 knots.' },
+  { start: new Date('2026-06-21T22:20:00Z'), end: new Date('2026-06-21T23:59:00Z'),
+    icon:'🏠', name:'Back on British Soil',
+    cryptic:'Stansted receives its prodigal sons. Cold air. Queues. The memory of warmth.' },
 ];
 
 const TRIP_START = EVENTS[0].start;
 const TRIP_END   = EVENTS[EVENTS.length - 1].end;
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// HELPERS
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function pad(n) { return String(Math.floor(Math.abs(n))).padStart(2, '0'); }
+function pad(n) { return String(Math.floor(Math.abs(n))).padStart(2,'0'); }
+function fmtTime(d) { return d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false}); }
+function fmtShort(d) { return d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+' '+fmtTime(d); }
 
-function fmt(date) {
-  return date.toLocaleString('en-GB', {
-    weekday: 'short', day: 'numeric', month: 'short',
-    hour: '2-digit', minute: '2-digit', hour12: false
-  });
-}
-
-function fmtTime(date) {
-  return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// RENDER
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function renderCards() {
-  const now   = new Date();
-  const cards = document.getElementById('cards');
-
+// ━━━ RENDER STATUS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function renderStatus() {
+  const now = new Date();
+  const area = document.getElementById('statusArea');
   document.getElementById('footer').textContent = 'Live · ' + now.toLocaleTimeString('en-GB');
 
-  // ── Before trip ──
   if (now < TRIP_START) {
-    const ms  = TRIP_START - now;
-    const s   = Math.floor(ms / 1000);
+    const s   = Math.max(0, Math.floor((TRIP_START - now) / 1000));
     const h   = Math.floor(s / 3600);
     const m   = Math.floor((s % 3600) / 60);
     const sec = s % 60;
-    cards.innerHTML = `
-      <div class="card">
-        <div class="tag"><span class="tag-dot"></span>T-minus</div>
-        <div class="hero-countdown">
-          <div class="big-num">${pad(h)}<span style="color:var(--muted);font-size:0.5em">h</span>${pad(m)}<span style="color:var(--muted);font-size:0.5em">m</span>${pad(sec)}<span style="color:var(--muted);font-size:0.5em">s</span></div>
-          <div class="hint">Until pickup begins · Fri 19 Jun 06:30</div>
-        </div>
+    area.innerHTML = `
+      <div class="full-state">
+        <div class="pre-label">T-minus</div>
+        <div class="pre-time">${pad(h)}<span style="font-size:.45em;color:var(--muted)">h</span>${pad(m)}<span style="font-size:.45em;color:var(--muted)">m</span>${pad(sec)}<span style="font-size:.45em;color:var(--muted)">s</span></div>
+        <div class="pre-hint">Until pickup begins · Fri 19 Jun 06:30 BST</div>
       </div>`;
     return;
   }
 
-  // ── After trip ──
   if (now >= TRIP_END) {
-    cards.innerHTML = `
-      <div class="card">
-        <div class="done-wrap">
-          <div style="font-size:3rem;margin-bottom:12px">🏆</div>
-          <h2>Mission Complete</h2>
-          <p>Gabi's Marrakesh stag do is officially in the history books.</p>
-          <p style="margin-top:10px;color:var(--gold);font-style:italic;font-size:0.85rem">What happens in the medina, stays in the medina.</p>
-        </div>
+    area.innerHTML = `
+      <div class="full-state">
+        <div style="font-size:3.5rem">🏆</div>
+        <div style="font-size:1.4rem;font-weight:800;color:var(--gold)">Mission Complete</div>
+        <div style="font-size:.85rem;color:var(--muted);text-align:center;line-height:1.6">Gabi's Marrakesh stag do is officially in the history books.<br><br><span style="color:var(--gold);font-style:italic">What happens in the medina, stays in the medina.</span></div>
       </div>`;
     return;
   }
 
-  // ── Progress ──
-  const totalMs   = TRIP_END - TRIP_START;
-  const elapsedMs = now - TRIP_START;
-  const pct       = Math.min(100, Math.max(0, (elapsedMs / totalMs) * 100));
+  const pct = Math.min(100, Math.max(0, (now - TRIP_START) / (TRIP_END - TRIP_START) * 100));
 
-  // ── Current & next ──
   let curr = null, next = null;
   for (let i = 0; i < EVENTS.length; i++) {
     const e = EVENTS[i];
-    if (now >= e.start && now < e.end) {
-      curr = e; next = EVENTS[i + 1] || null; break;
-    }
-    if (now < e.start) {
-      next = e; curr = EVENTS[i - 1] || null; break;
-    }
+    if (now >= e.start && now < e.end) { curr = e; next = EVENTS[i+1]||null; break; }
+    if (now < e.start) { next = e; curr = EVENTS[i-1]||null; break; }
   }
-  if (!curr && !next) curr = EVENTS[EVENTS.length - 1];
+  if (!curr && !next) curr = EVENTS[EVENTS.length-1];
 
-  // ── Countdown to next ──
   let cdHtml = '';
   if (next) {
-    const ms  = next.start - now;
-    const s   = Math.max(0, Math.floor(ms / 1000));
+    const s   = Math.max(0, Math.floor((next.start - now) / 1000));
     const h   = Math.floor(s / 3600);
     const m   = Math.floor((s % 3600) / 60);
     const sec = s % 60;
     cdHtml = `
-      <div class="card">
-        <div class="tag">⏱&nbsp; Countdown to next</div>
-        <div class="countdown-row">
-          <div class="cdown-unit"><div class="cdown-num">${pad(h)}</div><div class="cdown-label">Hours</div></div>
-          <div class="cdown-unit"><div class="cdown-num">${pad(m)}</div><div class="cdown-label">Mins</div></div>
-          <div class="cdown-unit"><div class="cdown-num">${pad(sec)}</div><div class="cdown-label">Secs</div></div>
+      <div class="card countdown-card">
+        <div class="cd-label">Next in</div>
+        <div class="cd-nums">
+          <div class="cd-unit"><div class="cd-num">${pad(h)}</div><div class="cd-lbl">hrs</div></div>
+          <div class="cd-unit"><div class="cd-num">${pad(m)}</div><div class="cd-lbl">min</div></div>
+          <div class="cd-unit"><div class="cd-num">${pad(sec)}</div><div class="cd-lbl">sec</div></div>
         </div>
       </div>`;
   }
 
-  cards.innerHTML = `
-    <div class="card">
-      <div class="tag">📍&nbsp; Mission progress</div>
-      <div class="progress-pct">${pct.toFixed(1)}<sup>%</sup></div>
-      <div class="progress-track">
-        <div class="progress-fill" style="width:${pct.toFixed(2)}%"></div>
-      </div>
-      <div class="progress-labels"><span>Fri 06:30</span><span>Sun 23:59</span></div>
-    </div>
-
-    ${curr ? `
-    <div class="card">
-      <div class="tag"><span class="tag-dot"></span>Happening now</div>
-      <span class="act-icon">${curr.icon}</span>
-      <div class="act-name">${curr.name}</div>
-      <div class="act-time">${fmtTime(curr.start)} — ${fmtTime(curr.end)}</div>
-      <div class="act-cryptic">${curr.cryptic}</div>
-    </div>` : ''}
-
-    ${next ? `
-    <div class="card">
-      <div class="tag">Coming up</div>
-      <div class="next-row">
-        <div class="next-icon">${next.icon}</div>
-        <div>
-          <div class="next-name">${next.name}</div>
-          <div class="next-time">${fmt(next.start)}</div>
+  area.innerHTML = `
+    <div class="status">
+      <div class="prog-row">
+        <div class="prog-pct">${pct.toFixed(1)}<sup>%</sup></div>
+        <div class="prog-bar-col">
+          <div class="prog-track">
+            <div class="prog-fill" style="width:${pct.toFixed(2)}%"></div>
+          </div>
+          <div class="prog-labels"><span>Fri 06:30</span><span>Sun 23:59</span></div>
         </div>
       </div>
-    </div>` : ''}
 
-    ${cdHtml}
-  `;
+      <div class="cards-row">
+        ${curr ? `
+        <div class="card">
+          <div class="card-tag"><span class="live-dot"></span>Now</div>
+          <div class="card-icon">${curr.icon}</div>
+          <div class="card-name">${curr.name}</div>
+          <div class="card-time">${fmtTime(curr.start)}–${fmtTime(curr.end)}</div>
+          <div class="card-cryptic">${curr.cryptic}</div>
+        </div>` : '<div class="card"></div>'}
+
+        ${next ? `
+        <div class="card">
+          <div class="card-tag">Up next</div>
+          <div class="card-icon">${next.icon}</div>
+          <div class="card-name">${next.name}</div>
+          <div class="card-time">${fmtShort(next.start)}</div>
+          <div class="card-cryptic">${next.cryptic}</div>
+        </div>` : '<div class="card"></div>'}
+
+        ${cdHtml}
+      </div>
+    </div>`;
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// INIT
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-buildBoard();
-
+// ━━━ INIT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 if (new Date() >= REVEAL_TIME) {
   revealed = true;
-  tiles.forEach((t, i) => {
-    t.el.className = 'tile locked';
-    t.charEl.textContent = DESTINATION[i] || ' ';
-  });
+  buildTiles(DESTINATION);
+  tiles.forEach((t,i) => { if(t){t.el.className='tile locked'; t.charEl.textContent=DESTINATION[i]||' ';} });
+  document.getElementById('boardRow').classList.add('revealed');
   document.getElementById('boardSub').textContent = 'Destination · Marrakesh, Morocco 🇲🇦';
+  document.getElementById('emoji').textContent = '🐪';
   document.title = 'Operation Marrakesh 🐪';
 } else {
-  // Show first city immediately, then start cycle
   showCity(CITIES[cityIndex]);
   phaseTimer = setTimeout(() => startScramble(nextCity), HOLD_MS);
-
-  // Check reveal every second
-  setInterval(() => {
-    if (!revealed && new Date() >= REVEAL_TIME) revealDestination();
-  }, 1000);
+  setInterval(() => { if (!revealed && new Date() >= REVEAL_TIME) revealDestination(); }, 1000);
 }
 
-renderCards();
-setInterval(renderCards, 1000);
+renderStatus();
+setInterval(renderStatus, 1000);
 </script>
 </body>
 </html>
