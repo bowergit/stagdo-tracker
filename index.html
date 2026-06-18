@@ -48,34 +48,34 @@ body::before {
   z-index: 0;
 }
 
-/* ━━━━ HERO (top ~50%) ━━━━ */
+/* ━━━━ HERO ━━━━ */
 .hero {
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px 16px 16px;
+  padding: 10px 16px 6px;
   position: relative;
   z-index: 1;
-  gap: 6px;
+  gap: 3px;
 }
 
 .op-label {
-  font-size: clamp(1rem, 4.5vw, 1.4rem);
-  letter-spacing: 4px;
+  font-size: clamp(0.85rem, 4vw, 1.1rem);
+  letter-spacing: 3px;
   text-transform: uppercase;
   color: var(--text);
   font-weight: 700;
 }
 
 .big-emoji {
-  font-size: clamp(4rem, 18vw, 6rem);
+  font-size: clamp(2.6rem, 11vw, 3.8rem);
   line-height: 1;
   transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
   display: block;
   text-align: center;
-  margin: 4px 0 2px;
+  margin: 2px 0 1px;
   filter: drop-shadow(0 4px 16px rgba(201,169,110,0.2));
 }
 
@@ -97,14 +97,13 @@ body::before {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 14px;
-  padding: 10px 14px;
+  border-radius: 12px;
+  padding: 7px 12px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
   transition: box-shadow 0.6s ease, border-color 0.6s ease;
-  min-height: 66px;
   width: fit-content;
 }
 
@@ -114,7 +113,7 @@ body::before {
 }
 
 .board-dest-label {
-  font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+  font-size: clamp(0.7rem, 2.8vw, 0.85rem);
   letter-spacing: 4px;
   text-transform: uppercase;
   color: var(--gold);
@@ -122,7 +121,7 @@ body::before {
   font-weight: 700;
   white-space: nowrap;
   text-align: center;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .board-tiles {
@@ -214,15 +213,16 @@ body::before {
   animation: flashReveal 2s ease forwards;
 }
 
-/* ━━━━ STATUS (bottom ~50%) ━━━━ */
+/* ━━━━ STATUS ━━━━ */
 .status {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
-  padding: 12px 14px 80px;
-  gap: 10px;
+  padding: 8px 12px 12px;
+  gap: 8px;
   position: relative;
   z-index: 1;
 }
@@ -230,12 +230,12 @@ body::before {
 
 /* ━━━━ WEATHER CARD ━━━━ */
 .weather-temp {
-  font-size: clamp(2.2rem, 10vw, 3rem);
+  font-size: clamp(1.6rem, 7vw, 2.2rem);
   font-weight: 900;
-  letter-spacing: -2px;
+  letter-spacing: -1px;
   color: var(--gold);
   line-height: 1;
-  margin: 4px 0 2px;
+  margin: 2px 0 2px;
 }
 .weather-desc {
   font-size: 0.85rem;
@@ -347,8 +347,8 @@ body::before {
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 14px;
+  border-radius: 14px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -368,10 +368,10 @@ body::before {
 
 .card-tag {
   font-size: 0.55rem;
-  letter-spacing: 2.5px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 8px;
+  margin-bottom: 5px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -489,13 +489,13 @@ body::before {
 
 /* Pre-trip / post-trip fullscreen */
 .full-state {
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px;
-  gap: 20px;
+  padding: 8px 16px;
+  gap: 6px;
   position: relative;
   z-index: 1;
 }
@@ -509,16 +509,16 @@ body::before {
 
 .pre-time {
   font-family: 'JetBrains Mono', monospace;
-  font-size: clamp(3rem, 16vw, 5rem);
+  font-size: clamp(2rem, 10vw, 3rem);
   font-weight: 700;
   color: var(--gold);
-  letter-spacing: -4px;
+  letter-spacing: -2px;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 
 .pre-hint {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--muted);
   letter-spacing: 1px;
   text-align: center;
@@ -527,18 +527,18 @@ body::before {
 /* ━━━━ QUOTE STRIP ━━━━ */
 .quote-strip {
   flex: 0 0 auto;
-  padding: 10px 20px;
+  padding: 5px 16px;
   text-align: center;
   position: relative;
   z-index: 1;
-  min-height: 44px;
+  min-height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .quote-text {
-  font-size: clamp(0.9rem, 3.8vw, 1.05rem);
+  font-size: clamp(0.78rem, 3.2vw, 0.9rem);
   color: #bbb;
   font-style: italic;
   line-height: 1.4;
