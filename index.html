@@ -6,6 +6,7 @@
 <title>Operation ???</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -200,17 +201,70 @@ body::before {
   margin: 0 16px;
 }
 
+/* ━━━━ REVEAL FLASH ━━━━ */
+@keyframes flashReveal {
+  0%   { opacity: 0; }
+  12%  { opacity: 0.7; }
+  100% { opacity: 0; }
+}
+.reveal-flash {
+  position: fixed; inset: 0;
+  background: linear-gradient(135deg, rgba(201,169,110,0.85), rgba(255,255,255,0.55));
+  pointer-events: none; z-index: 300;
+  animation: flashReveal 2s ease forwards;
+}
+
 /* ━━━━ STATUS (bottom ~50%) ━━━━ */
 .status {
   flex: 1;
-  overflow: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
-  padding: 12px 14px 16px;
+  padding: 12px 14px 80px;
   gap: 10px;
   position: relative;
   z-index: 1;
 }
+.status::-webkit-scrollbar { display: none; }
+
+/* ━━━━ WEATHER CARD ━━━━ */
+.weather-temp {
+  font-size: clamp(2.2rem, 10vw, 3rem);
+  font-weight: 900;
+  letter-spacing: -2px;
+  color: var(--gold);
+  line-height: 1;
+  margin: 4px 0 2px;
+}
+.weather-desc {
+  font-size: 0.85rem;
+  color: var(--text);
+  font-weight: 500;
+  margin-bottom: 3px;
+}
+.weather-detail {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+/* ━━━━ PHOTO CARD ━━━━ */
+.photo-btn {
+  display: block;
+  margin-top: 10px;
+  background: linear-gradient(135deg, rgba(201,169,110,0.15), rgba(201,169,110,0.05));
+  border: 1px solid rgba(201,169,110,0.3);
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: var(--gold);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+  letter-spacing: 0.5px;
+  -webkit-tap-highlight-color: transparent;
+}
+.photo-btn:active { opacity: 0.7; }
 
 /* Progress row */
 .prog-row {
@@ -672,6 +726,22 @@ function revealDestination() {
         document.getElementById('boardSub').textContent = 'Destination';
         document.getElementById('emoji').textContent = '🐪';
         document.title = 'Operation Marrakesh 🐪';
+
+        // Flash
+        const flash = document.createElement('div');
+        flash.className = 'reveal-flash';
+        document.body.appendChild(flash);
+        setTimeout(() => flash.remove(), 2500);
+
+        // Confetti bursts
+        const fire = (opts) => confetti(Object.assign({ zIndex: 400, disableForReducedMotion: true }, opts));
+        fire({ particleCount: 120, spread: 80, origin: { y: 0.35 }, colors: ['#c9a96e','#e8c88a','#fff','#ff9f43','#ffeaa7'] });
+        setTimeout(() => fire({ particleCount: 80, spread: 100, origin: { x: 0.1, y: 0.5 }, angle: 60, colors: ['#c9a96e','#fff','#fdcb6e'] }), 400);
+        setTimeout(() => fire({ particleCount: 80, spread: 100, origin: { x: 0.9, y: 0.5 }, angle: 120, colors: ['#c9a96e','#fff','#fdcb6e'] }), 400);
+        setTimeout(() => fire({ particleCount: 60, spread: 120, origin: { y: 0.3 }, colors: ['#c9a96e','#e8c88a','#fff'] }), 900);
+
+        // Vibrate
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]);
       }, DESTINATION.length * 110 + 250);
     }
   }, 55);
@@ -804,6 +874,22 @@ function renderStatus() {
         </div>` : '<div class="card"></div>'}
 
         ${cdHtml}
+
+        ${wx ? `
+        <div class="card" style="grid-column:1/-1">
+          <div class="card-tag">🌡️ ${(revealed || new Date() >= REVEAL_TIME) ? 'Marrakesh, Morocco' : 'Destination'} · Live weather</div>
+          <div class="weather-temp">${wx.tempC}°C</div>
+          <div class="weather-desc">${wx.desc}</div>
+          <div class="weather-detail">Feels like ${wx.feelsLike}° · ${wx.humidity}% humidity</div>
+        </div>` : ''}
+
+        <div class="card" style="grid-column:1/-1">
+          <div class="card-tag">📸 Share your photos</div>
+          <div class="card-name" style="margin-bottom:4px">Drop your pics from the trip</div>
+          <div class="card-cryptic" style="margin-bottom:10px">Everyone can add to the shared album — keep it together in one place.</div>
+          <a class="photo-btn" href="https://www.icloud.com/sharedalbum/#B2CJ0DiRHGEgUAr" target="_blank" rel="noopener">📷 &nbsp;Open Shared Album →</a>
+        </div>
+
       </div>
     </div>`;
 }
@@ -880,6 +966,25 @@ function scheduleNextQuote(q) {
 // Kick off
 showNextQuote();
 scheduleNextQuote(QUOTES[quoteIndex % QUOTES.length]);
+
+// ━━━ WEATHER ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let wx = null;
+
+async function fetchWeather() {
+  try {
+    const r = await fetch('https://wttr.in/Marrakesh?format=j1');
+    const d = await r.json();
+    const c = d.current_condition[0];
+    wx = {
+      tempC:     c.temp_C,
+      feelsLike: c.FeelsLikeC,
+      desc:      c.weatherDesc[0].value,
+      humidity:  c.humidity,
+    };
+  } catch(e) { /* silently fail */ }
+}
+fetchWeather();
+setInterval(fetchWeather, 10 * 60 * 1000);
 
 // ━━━ INIT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 if (new Date() >= REVEAL_TIME) {
