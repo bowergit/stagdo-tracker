@@ -25,18 +25,105 @@
   }
 
   .header h1 {
-    font-size: clamp(1.6rem, 5vw, 2.4rem);
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    color: #f0ead6;
+    font-size: clamp(1.1rem, 4vw, 1.5rem);
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 10px;
   }
 
   .header .subtitle {
-    color: #c9a96e;
-    font-size: 0.9rem;
-    margin-top: 4px;
+    color: #555;
+    font-size: 0.75rem;
+    margin-top: 10px;
     letter-spacing: 2px;
     text-transform: uppercase;
+  }
+
+  /* ── Departures board ── */
+  .board {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    background: #0d0d0d;
+    border: 1px solid #1e1e1e;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin: 4px 0 6px;
+  }
+
+  .flap {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 42px;
+    background: #111;
+    border-radius: 5px;
+    border: 1px solid #1a1a1a;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+  }
+
+  .flap::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    top: 50%;
+    height: 1px;
+    background: rgba(0,0,0,0.5);
+    z-index: 2;
+  }
+
+  .flap-char {
+    font-family: 'Courier New', monospace;
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #f0ead6;
+    transition: none;
+    user-select: none;
+  }
+
+  .flap.spinning .flap-char {
+    animation: flapSpin 0.08s steps(1) infinite;
+  }
+
+  .flap.settling .flap-char {
+    animation: flapSettle 0.06s steps(1) 3;
+  }
+
+  .flap.locked .flap-char {
+    color: #c9a96e;
+    text-shadow: 0 0 12px rgba(201,169,110,0.5);
+    animation: none;
+  }
+
+  .flap-space {
+    width: 10px;
+  }
+
+  @keyframes flapSpin {
+    0%   { opacity: 1; }
+    50%  { opacity: 0.3; }
+    100% { opacity: 1; }
+  }
+
+  @keyframes flapSettle {
+    0%   { transform: scaleY(1); opacity: 1; }
+    40%  { transform: scaleY(0.1); opacity: 0.4; }
+    100% { transform: scaleY(1); opacity: 1; }
+  }
+
+  .board-label {
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    color: #333;
+    text-transform: uppercase;
+    margin-bottom: 6px;
   }
 
   .card {
@@ -270,7 +357,9 @@
 <body>
 
 <div class="header">
-  <h1>✈️ Operation <span id="dest">???</span></h1>
+  <h1>✈️ &nbsp;Operation</h1>
+  <div class="board-label">Destination</div>
+  <div class="board" id="board"></div>
   <div class="subtitle" id="subtitle">Gabi's Stag Do · June 2026</div>
 </div>
 
@@ -279,57 +368,119 @@
 <div class="footer" id="clock"></div>
 
 <script>
-// ─── DESTINATION REVEAL ──────────────────────────────────────────────────────
+// ─── SPLIT-FLAP BOARD ────────────────────────────────────────────────────────
 const REVEAL_TIME = new Date('2026-06-19T07:00:00Z'); // 08:00 BST
+const DESTINATION  = 'MARRAKESH';
+const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 const DECOY_CITIES = [
-  'Tokyo','Reykjavik','Nairobi','Buenos Aires','Oslo','Bangkok','Lisbon',
-  'Bogotá','Helsinki','Kathmandu','Lagos','Ulaanbaatar','Havana','Tbilisi',
-  'Lima','Vilnius','Addis Ababa','Quito','Tallinn','Colombo','Bishkek',
-  'Windhoek','Yerevan','Accra','Montevideo','Phnom Penh','Tashkent','Minsk',
-  'Antananarivo','Ouagadougou','Nassau','Paramaribo','Dushanbe','Niamey',
-  'Seoul','Caracas','Vienna','Porto','Riga','Zagreb','Luanda','Dakar',
-  'Baku','Almaty','Chisinau','Nuku\'alofa','Apia','Honiara','Vientiane',
-  'Muscat','Beirut','Amman','Tunis','Libreville','Lomé','Conakry','Bamako',
-  'Copenhagen','Warsaw','Prague','Budapest','Athens','Valletta','Reykjavik',
-  'Dubrovnik','Tbilisi','Yerevan','Nur-Sultan','Ashgabat','Kabul','Dhaka',
+  'TOKYO','REYKJAVIK','NAIROBI','OSLO','BANGKOK','LISBON','HELSINKI',
+  'KATHMANDU','LAGOS','HAVANA','TBILISI','LIMA','VILNIUS','QUITO',
+  'TALLINN','COLOMBO','BISHKEK','WINDHOEK','YEREVAN','ACCRA','MONTEVIDEO',
+  'TASHKENT','MINSK','NASSAU','DUSHANBE','NIAMEY','SEOUL','CARACAS',
+  'VIENNA','PORTO','RIGA','ZAGREB','LUANDA','DAKAR','BAKU','ALMATY',
+  'MUSCAT','BEIRUT','AMMAN','TUNIS','LOMÉ','CONAKRY','BAMAKO',
+  'COPENHAGEN','WARSAW','PRAGUE','BUDAPEST','ATHENS','VALLETTA',
+  'DUBROVNIK','ASHGABAT','KABUL','DHAKA','BRUSSELS','STOCKHOLM',
+  'AMSTERDAM','SINGAPORE','DUBAI','ISTANBUL','CASABLANCA','CAIRO',
+  'JOHANNESBURG','LAGOS','ACCRA','ADDIS ABABA','NAIROBI','KAMPALA',
 ];
 
+const BOARD_SIZE = 9; // length of 'MARRAKESH'
+let flaps = []; // {el, charEl, target, current, spinning}
 let cityIndex = 0;
-let cityInterval = null;
 let revealed = false;
+let boardInterval = null;
 
-function updateDestination() {
-  const now = new Date();
-  const destEl = document.getElementById('dest');
-  if (!destEl) return;
-
-  if (now >= REVEAL_TIME) {
-    // Lock in — dramatic reveal
-    if (!revealed) {
-      revealed = true;
-      if (cityInterval) { clearInterval(cityInterval); cityInterval = null; }
-      destEl.style.transition = 'color 0.6s ease';
-      destEl.style.color = '#c9a96e';
-      destEl.textContent = 'Marrakesh';
-      document.title = 'Operation Marrakesh 🐪';
-      const subtitle = document.getElementById('subtitle');
-      if (subtitle) subtitle.textContent = "Gabi's Stag Do · June 2026";
-    }
-  } else {
-    // Cycle cities rapidly
-    destEl.textContent = DECOY_CITIES[cityIndex % DECOY_CITIES.length];
-    destEl.style.color = '#888';
-    cityIndex++;
-    document.title = 'Operation ??? ✈️';
-    const subtitle = document.getElementById('subtitle');
-    if (subtitle) subtitle.textContent = "Gabi's Stag Do · Destination: CLASSIFIED";
+function buildBoard() {
+  const board = document.getElementById('board');
+  if (!board) return;
+  board.innerHTML = '';
+  flaps = [];
+  for (let i = 0; i < BOARD_SIZE; i++) {
+    const wrap = document.createElement('div');
+    wrap.className = 'flap spinning';
+    const ch = document.createElement('span');
+    ch.className = 'flap-char';
+    ch.textContent = CHARS[Math.floor(Math.random() * CHARS.length)];
+    wrap.appendChild(ch);
+    board.appendChild(wrap);
+    flaps.push({ el: wrap, charEl: ch });
   }
 }
 
-// Start cycling fast (every 120ms)
-cityInterval = setInterval(updateDestination, 120);
-updateDestination();
+function setBoard(word, lock = false) {
+  const padded = word.toUpperCase().padEnd(BOARD_SIZE, ' ').slice(0, BOARD_SIZE);
+  for (let i = 0; i < BOARD_SIZE; i++) {
+    const f = flaps[i];
+    if (!f) continue;
+    const ch = padded[i];
+    f.charEl.textContent = ch === ' ' ? ' ' : ch;
+    if (lock) {
+      f.el.className = 'flap locked';
+    } else {
+      f.el.className = 'flap spinning';
+    }
+  }
+}
+
+function tickBoard() {
+  const now = new Date();
+
+  if (now >= REVEAL_TIME) {
+    if (!revealed) {
+      revealed = true;
+      if (boardInterval) { clearInterval(boardInterval); boardInterval = null; }
+      // Settle each letter one by one with a stagger
+      for (let i = 0; i < BOARD_SIZE; i++) {
+        const f = flaps[i];
+        const targetChar = DESTINATION[i];
+        setTimeout(() => {
+          f.el.className = 'flap settling';
+          f.charEl.textContent = targetChar;
+          setTimeout(() => {
+            f.el.className = 'flap locked';
+          }, 300);
+        }, i * 120);
+      }
+      setTimeout(() => {
+        document.title = 'Operation Marrakesh 🐪';
+        const subtitle = document.getElementById('subtitle');
+        if (subtitle) subtitle.textContent = "Gabi's Stag Do · June 2026";
+      }, BOARD_SIZE * 120 + 300);
+    }
+    return;
+  }
+
+  // Randomly scramble some flaps each tick for noise
+  flaps.forEach(f => {
+    if (Math.random() > 0.4) {
+      f.charEl.textContent = CHARS[Math.floor(Math.random() * CHARS.length)];
+    }
+  });
+
+  // Every ~600ms show a real city name through the noise
+  if (cityIndex % 5 === 0) {
+    const city = DECOY_CITIES[Math.floor(cityIndex / 5) % DECOY_CITIES.length];
+    setBoard(city, false);
+  }
+
+  cityIndex++;
+  document.title = 'Operation ??? ✈️';
+  const subtitle = document.getElementById('subtitle');
+  if (subtitle) subtitle.textContent = "Gabi's Stag Do · Destination: CLASSIFIED";
+}
+
+buildBoard();
+if (new Date() >= REVEAL_TIME) {
+  // Already past reveal — show immediately
+  revealed = true;
+  setBoard(DESTINATION, true);
+  document.title = 'Operation Marrakesh 🐪';
+} else {
+  boardInterval = setInterval(tickBoard, 120);
+  tickBoard();
+}
 
 // ─── ITINERARY ────────────────────────────────────────────────────────────────
 // All times in LOCAL time at the activity location.
