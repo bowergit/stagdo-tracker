@@ -458,6 +458,14 @@ body::before {
   margin-bottom: 5px;
   align-items: flex-start;
 }
+.plan-item.locked { opacity: 0.7; }
+.redact-bar {
+  height: 11px;
+  border-radius: 3px;
+  background: #000;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+}
+.redact-bar.thin { height: 7px; margin-top: 5px; opacity: 0.55; }
 .plan-item-icon { font-size: 1.25rem; flex-shrink: 0; line-height: 1.2; }
 .plan-item-name { font-size: 0.85rem; font-weight: 700; color: var(--text); line-height: 1.2; }
 .plan-item-desc { font-size: 0.7rem; color: #999; font-style: italic; line-height: 1.4; margin-top: 2px; }
@@ -690,34 +698,36 @@ let currentView   = 'tracker';   // 'tracker' | 'plan'
 let planAutoShown = false;
 window.setView = function(v) { currentView = v; renderStatus(); };
 
-// ━━━ THE ITINERARY (locked until landing) ━━━━━━━━
+// ━━━ THE ITINERARY ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Each item stays REDACTED until its `at` time (UTC). Morocco = UTC+1 in summer.
+// Times are best-guess — they unlock the surprise stage by stage.
 const ITINERARY = [
   {
     day: 'Friday', date: '19 Jun', sub: 'Touchdown & the Medina',
     items: [
-      { icon:'🛬', name:'Land & settle into the riad', desc:'The eagle has landed. Drop the bags. The medina exhales.' },
-      { icon:'🍸', name:'Rooftop bar', desc:'Sundowners above the rooftops. Altitude and attitude.' },
-      { icon:'🌅', name:'Rooftop dinner at sunset', desc:'Dinner as the sun melts into the medina. Booked. Sorted. Earned.' },
+      { at:new Date('2026-06-19T12:00:00Z'), icon:'🛬', name:'Land & settle into the riad', desc:'The eagle has landed. Drop the bags. The medina exhales.' },
+      { at:new Date('2026-06-19T17:30:00Z'), icon:'🍸', name:'Rooftop bar', desc:'Sundowners above the rooftops. Altitude and attitude.' },
+      { at:new Date('2026-06-19T19:00:00Z'), icon:'🌅', name:'Rooftop dinner at sunset', desc:'Dinner as the sun melts into the medina. Booked. Sorted. Earned.' },
     ],
   },
   {
     day: 'Saturday', date: '20 Jun', sub: 'The 8-Hour Expedition',
     items: [
-      { icon:'🏜️', name:'Quad biking', desc:'Engines, dust, and questionable decisions at speed.' },
-      { icon:'🐪', name:'Camel riding', desc:'The ships of the desert. Hold on tight. Documentation mandatory.' },
-      { icon:'⛰️', name:'Hiking the Atlas Mountains', desc:'Up into the High Atlas. Lungs optional. Views non-negotiable.' },
-      { icon:'🔥', name:'Feast in a Berber village', desc:'Tagine in the mountains. The best meal of the trip. Probably of the year.' },
-      { icon:'🚗', name:'Return to Marrakesh', desc:'Back to base — dusty, knackered, victorious.' },
-      { icon:'🍽️', name:'Dinner near the riad', desc:'Refuel. Round two commences.' },
-      { icon:'🧖', name:'Hammam (maybe)', desc:'Steam, scrub, rebirth. If anyone has the energy left.' },
+      { at:new Date('2026-06-20T07:30:00Z'), icon:'🏜️', name:'Quad biking', desc:'Engines, dust, and questionable decisions at speed.' },
+      { at:new Date('2026-06-20T09:00:00Z'), icon:'🐪', name:'Camel riding', desc:'The ships of the desert. Hold on tight. Documentation mandatory.' },
+      { at:new Date('2026-06-20T10:30:00Z'), icon:'⛰️', name:'Hiking the Atlas Mountains', desc:'Up into the High Atlas. Lungs optional. Views non-negotiable.' },
+      { at:new Date('2026-06-20T12:30:00Z'), icon:'🔥', name:'Feast in a Berber village', desc:'Tagine in the mountains. The best meal of the trip. Probably of the year.' },
+      { at:new Date('2026-06-20T15:00:00Z'), icon:'🚗', name:'Return to Marrakesh', desc:'Back to base — dusty, knackered, victorious.' },
+      { at:new Date('2026-06-20T19:00:00Z'), icon:'🍽️', name:'Dinner near the riad', desc:'Refuel. Round two commences.' },
+      { at:new Date('2026-06-20T21:00:00Z'), icon:'🧖', name:'Hammam (maybe)', desc:'Steam, scrub, rebirth. If anyone has the energy left.' },
     ],
   },
   {
     day: 'Sunday', date: '21 Jun', sub: '█ R E D A C T E D █',
     items: [
-      { icon:'❓', name:'No plan detected', desc:'The itinerary for this day has been redacted. Or it never existed. Hard to say.' },
-      { icon:'🌫️', name:'The desert provides', desc:'Whatever happens today stays in the medina. Forever. No exceptions.' },
-      { icon:'🏠', name:'Eventually... home', desc:'A changed man returns. Sandier. Wiser. Slightly broken. Engaged-adjacent.' },
+      { at:new Date('2026-06-21T09:00:00Z'), icon:'❓', name:'No plan detected', desc:'The itinerary for this day has been redacted. Or it never existed. Hard to say.' },
+      { at:new Date('2026-06-21T13:00:00Z'), icon:'🌫️', name:'The desert provides', desc:'Whatever happens today stays in the medina. Forever. No exceptions.' },
+      { at:new Date('2026-06-21T17:45:00Z'), icon:'🏠', name:'Eventually... home', desc:'A changed man returns. Sandier. Wiser. Slightly broken. Engaged-adjacent.' },
     ],
   },
 ];
@@ -914,25 +924,41 @@ function toggleBarHtml(active) {
 }
 
 function planViewHtml() {
+  const now = new Date();
   return `
-    <div class="plan-intro">🤫 Decrypted on landing · for your eyes, Gabi</div>
+    <div class="plan-intro">🔓 Each stage declassifies the moment it begins</div>
     <div class="plan-scroll">
-      ${ITINERARY.map(day => `
+      ${ITINERARY.map(day => {
+        const dayUnlocked = day.items.some(it => now >= it.at);
+        return `
         <div class="plan-day">
           <div class="plan-day-head">
             <span class="plan-day-name">${day.day}</span>
             <span class="plan-day-date">${day.date}</span>
-            <span class="plan-day-sub">${day.sub}</span>
+            <span class="plan-day-sub">${dayUnlocked ? day.sub : '🔒 Classified'}</span>
           </div>
-          ${day.items.map(it => `
-            <div class="plan-item">
-              <div class="plan-item-icon">${it.icon}</div>
-              <div>
-                <div class="plan-item-name">${it.name}</div>
-                <div class="plan-item-desc">${it.desc}</div>
-              </div>
-            </div>`).join('')}
-        </div>`).join('')}
+          ${day.items.map(it => {
+            if (now >= it.at) {
+              return `
+              <div class="plan-item">
+                <div class="plan-item-icon">${it.icon}</div>
+                <div>
+                  <div class="plan-item-name">${it.name}</div>
+                  <div class="plan-item-desc">${it.desc}</div>
+                </div>
+              </div>`;
+            }
+            return `
+              <div class="plan-item locked">
+                <div class="plan-item-icon">🔒</div>
+                <div style="flex:1">
+                  <div class="redact-bar" style="width:${55 + (it.name.length*2)%35}%"></div>
+                  <div class="redact-bar thin" style="width:${70 + (it.desc.length)%25}%"></div>
+                </div>
+              </div>`;
+          }).join('')}
+        </div>`;
+      }).join('')}
       <div class="card" style="margin-top:6px">
         <div class="card-tag">📸 Share your photos</div>
         <a class="photo-btn" href="https://www.icloud.com/sharedalbum/#B2CJ0DiRHGEgUAr" target="_blank" rel="noopener" style="margin-top:0">📷 &nbsp;Open Shared Album →</a>
