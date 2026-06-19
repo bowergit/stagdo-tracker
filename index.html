@@ -388,6 +388,87 @@ body::before {
 
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.15} }
 
+/* ━━━━ VIEW TOGGLE ━━━━ */
+.view-toggle {
+  display: flex;
+  gap: 5px;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+  flex-shrink: 0;
+}
+.vt-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 8px 6px;
+  border-radius: 9px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.2s, background 0.2s;
+}
+.vt-btn.active {
+  background: linear-gradient(135deg, rgba(201,169,110,0.28), rgba(201,169,110,0.1));
+  color: var(--gold);
+  box-shadow: inset 0 0 0 1px rgba(201,169,110,0.35);
+}
+
+/* ━━━━ PLAN VIEW ━━━━ */
+.plan-scroll { display: flex; flex-direction: column; gap: 4px; }
+.plan-day { margin-top: 4px; }
+.plan-day-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 6px 2px 6px;
+}
+.plan-day-name {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+}
+.plan-day-date {
+  font-size: 0.62rem;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+.plan-day-sub {
+  font-size: 0.58rem;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-left: auto;
+  opacity: 0.65;
+  text-align: right;
+}
+.plan-item {
+  display: flex;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  margin-bottom: 5px;
+  align-items: flex-start;
+}
+.plan-item-icon { font-size: 1.25rem; flex-shrink: 0; line-height: 1.2; }
+.plan-item-name { font-size: 0.85rem; font-weight: 700; color: var(--text); line-height: 1.2; }
+.plan-item-desc { font-size: 0.7rem; color: #999; font-style: italic; line-height: 1.4; margin-top: 2px; }
+.plan-intro {
+  text-align: center;
+  font-size: 0.68rem;
+  color: var(--muted);
+  letter-spacing: 1px;
+  padding: 2px 0 2px;
+}
+
 .card-icon { font-size: 1.6rem; line-height: 1; margin-bottom: 6px; flex-shrink: 0; }
 
 .card-name {
@@ -598,10 +679,48 @@ body::before {
 
 <script>
 // ━━━ CONFIG ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const REVEAL_TIME = new Date('2026-06-19T07:00:00Z'); // 08:00 BST
+const REVEAL_TIME = new Date('2026-06-19T07:00:00Z'); // 08:00 BST — destination
+const PLAN_REVEAL_TIME = new Date('2026-06-19T12:00:00Z'); // 13:00 BST — the itinerary, after landing
 const DESTINATION = 'MARRAKESH';
 const HOLD_MS     = 3400;
 const SCRAMBLE_MS = 650;
+
+// View toggle state
+let currentView   = 'tracker';   // 'tracker' | 'plan'
+let planAutoShown = false;
+window.setView = function(v) { currentView = v; renderStatus(); };
+
+// ━━━ THE ITINERARY (locked until landing) ━━━━━━━━
+const ITINERARY = [
+  {
+    day: 'Friday', date: '19 Jun', sub: 'Touchdown & the Medina',
+    items: [
+      { icon:'🛬', name:'Land & settle into the riad', desc:'The eagle has landed. Drop the bags. The medina exhales.' },
+      { icon:'🍸', name:'Rooftop bar', desc:'Sundowners above the rooftops. Altitude and attitude.' },
+      { icon:'🌅', name:'Rooftop dinner at sunset', desc:'Dinner as the sun melts into the medina. Booked. Sorted. Earned.' },
+    ],
+  },
+  {
+    day: 'Saturday', date: '20 Jun', sub: 'The 8-Hour Expedition',
+    items: [
+      { icon:'🏜️', name:'Quad biking', desc:'Engines, dust, and questionable decisions at speed.' },
+      { icon:'🐪', name:'Camel riding', desc:'The ships of the desert. Hold on tight. Documentation mandatory.' },
+      { icon:'⛰️', name:'Hiking the Atlas Mountains', desc:'Up into the High Atlas. Lungs optional. Views non-negotiable.' },
+      { icon:'🔥', name:'Feast in a Berber village', desc:'Tagine in the mountains. The best meal of the trip. Probably of the year.' },
+      { icon:'🚗', name:'Return to Marrakesh', desc:'Back to base — dusty, knackered, victorious.' },
+      { icon:'🍽️', name:'Dinner near the riad', desc:'Refuel. Round two commences.' },
+      { icon:'🧖', name:'Hammam (maybe)', desc:'Steam, scrub, rebirth. If anyone has the energy left.' },
+    ],
+  },
+  {
+    day: 'Sunday', date: '21 Jun', sub: '█ R E D A C T E D █',
+    items: [
+      { icon:'❓', name:'No plan detected', desc:'The itinerary for this day has been redacted. Or it never existed. Hard to say.' },
+      { icon:'🌫️', name:'The desert provides', desc:'Whatever happens today stays in the medina. Forever. No exceptions.' },
+      { icon:'🏠', name:'Eventually... home', desc:'A changed man returns. Sandier. Wiser. Slightly broken. Engaged-adjacent.' },
+    ],
+  },
+];
 
 const EMOJIS = ['🐪','🍆','🍺','🍹','🌴','☀️','🕺','🎉','🥂','🔥','🌶️','💃','🏖️','🍸','🎊','👙','🎶','🏜️'];
 
@@ -785,11 +904,65 @@ function pad(n) { return String(Math.floor(Math.abs(n))).padStart(2,'0'); }
 function fmtTime(d) { return d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false}); }
 function fmtShort(d) { return d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+' '+fmtTime(d); }
 
+// ━━━ PLAN / TOGGLE HELPERS ━━━━━━━━━━━━━━━━━━━━━━━
+function toggleBarHtml(active) {
+  return `
+    <div class="view-toggle">
+      <button class="vt-btn ${active==='tracker'?'active':''}" onclick="setView('tracker')">📍 Live</button>
+      <button class="vt-btn ${active==='plan'?'active':''}" onclick="setView('plan')">📋 The Plan</button>
+    </div>`;
+}
+
+function planViewHtml() {
+  return `
+    <div class="plan-intro">🤫 Decrypted on landing · for your eyes, Gabi</div>
+    <div class="plan-scroll">
+      ${ITINERARY.map(day => `
+        <div class="plan-day">
+          <div class="plan-day-head">
+            <span class="plan-day-name">${day.day}</span>
+            <span class="plan-day-date">${day.date}</span>
+            <span class="plan-day-sub">${day.sub}</span>
+          </div>
+          ${day.items.map(it => `
+            <div class="plan-item">
+              <div class="plan-item-icon">${it.icon}</div>
+              <div>
+                <div class="plan-item-name">${it.name}</div>
+                <div class="plan-item-desc">${it.desc}</div>
+              </div>
+            </div>`).join('')}
+        </div>`).join('')}
+      <div class="card" style="margin-top:6px">
+        <div class="card-tag">📸 Share your photos</div>
+        <a class="photo-btn" href="https://www.icloud.com/sharedalbum/#B2CJ0DiRHGEgUAr" target="_blank" rel="noopener" style="margin-top:0">📷 &nbsp;Open Shared Album →</a>
+      </div>
+    </div>`;
+}
+
 // ━━━ RENDER STATUS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function renderStatus() {
   const now = new Date();
   const area = document.getElementById('statusArea');
   document.getElementById('footer').textContent = 'Live · ' + now.toLocaleTimeString('en-GB');
+
+  const planUnlocked = now >= PLAN_REVEAL_TIME;
+
+  // First time the plan unlocks, reveal it automatically (celebratory pop)
+  if (planUnlocked && !planAutoShown) {
+    planAutoShown = true;
+    currentView = 'plan';
+    if (window.confetti) {
+      confetti({ particleCount: 90, spread: 90, origin: { y: 0.4 }, zIndex: 400,
+        colors: ['#c9a96e','#e8c88a','#fff','#ff9f43'] });
+    }
+  }
+
+  // PLAN VIEW (only available after landing)
+  if (planUnlocked && currentView === 'plan') {
+    area.innerHTML = `<div class="status">${toggleBarHtml('plan')}${planViewHtml()}</div>`;
+    return;
+  }
 
   if (now < TRIP_START) {
     const s   = Math.max(0, Math.floor((TRIP_START - now) / 1000));
@@ -824,10 +997,13 @@ function renderStatus() {
 
   if (now >= TRIP_END) {
     area.innerHTML = `
-      <div class="full-state">
-        <div style="font-size:3.5rem">🏆</div>
-        <div style="font-size:1.4rem;font-weight:800;color:var(--gold)">Mission Complete</div>
-        <div style="font-size:.85rem;color:var(--muted);text-align:center;line-height:1.6">Gabi's Marrakesh stag do is officially in the history books.<br><br><span style="color:var(--gold);font-style:italic">What happens in the medina, stays in the medina.</span></div>
+      <div class="status">
+        ${planUnlocked ? toggleBarHtml('tracker') : ''}
+        <div class="full-state">
+          <div style="font-size:3.5rem">🏆</div>
+          <div style="font-size:1.4rem;font-weight:800;color:var(--gold)">Mission Complete</div>
+          <div style="font-size:.85rem;color:var(--muted);text-align:center;line-height:1.6">Gabi's Marrakesh stag do is officially in the history books.<br><br><span style="color:var(--gold);font-style:italic">What happens in the medina, stays in the medina.</span></div>
+        </div>
       </div>`;
     return;
   }
@@ -861,6 +1037,7 @@ function renderStatus() {
 
   area.innerHTML = `
     <div class="status">
+      ${planUnlocked ? toggleBarHtml('tracker') : ''}
       <div class="prog-row">
         <div class="prog-pct">${pct.toFixed(1)}<sup>%</sup></div>
         <div class="prog-bar-col">
