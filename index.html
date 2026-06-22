@@ -21,17 +21,19 @@
   --muted: #aaa;
 }
 
-html { height: 100%; }
+html { min-height: 100%; }
 
 body {
   background: var(--bg);
   color: var(--text);
   font-family: 'Inter', system-ui, sans-serif;
-  height: 100dvh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   position: relative;
+  padding-bottom: 28px;
 }
 
 /* ambient glow */
@@ -215,10 +217,7 @@ body::before {
 
 /* ━━━━ STATUS ━━━━ */
 .status {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  flex: 1 0 auto;
   display: flex;
   flex-direction: column;
   padding: 8px 12px 12px;
@@ -226,7 +225,6 @@ body::before {
   position: relative;
   z-index: 1;
 }
-.status::-webkit-scrollbar { display: none; }
 
 /* ━━━━ WEATHER CARD ━━━━ */
 .weather-temp {
@@ -337,11 +335,10 @@ body::before {
 
 /* Current + next cards */
 .cards-row {
-  flex: 1;
+  flex: 0 0 auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  min-height: 0;
 }
 
 .card {
@@ -644,15 +641,14 @@ body::before {
 }
 
 .footer {
-  position: fixed;
-  bottom: 8px;
-  left: 0; right: 0;
+  flex-shrink: 0;
   text-align: center;
   font-size: 0.55rem;
-  color: #222;
+  color: #444;
   letter-spacing: 2px;
   text-transform: uppercase;
-  z-index: 0;
+  padding: 10px 0 4px;
+  z-index: 1;
 }
 </style>
 </head>
